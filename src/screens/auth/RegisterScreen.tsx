@@ -1,12 +1,15 @@
 import React, { useState } from 'react';
-import { View, Text, StyleSheet, Alert, KeyboardAvoidingView, Platform } from 'react-native';
+import { View, Text, StyleSheet, Alert, KeyboardAvoidingView, Platform, ScrollView } from 'react-native';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { AuthStackParamList } from '../../navigation/types';
 import { Input } from '../../components/common/Input';
 import { Button } from '../../components/common/Button';
+import { PillButton } from '../../components/common/PillButton';
+import { GradientBackground } from '../../components/common/GradientBackground';
+import { GlassCard } from '../../components/common/GlassCard';
 import { useAuth } from '../../hooks/useAuth';
 import { supabase } from '../../config/supabase';
-import { colors, spacing } from '../../constants/theme';
+import { spacing, vibrant, colors } from '../../constants/theme';
 
 type Props = NativeStackScreenProps<AuthStackParamList, 'Register'>;
 type Role = 'student' | 'teacher';
@@ -61,70 +64,103 @@ export function RegisterScreen({ navigation }: Props) {
   };
 
   return (
-    <KeyboardAvoidingView
-      style={styles.container}
-      behavior={Platform.OS === 'ios' ? 'padding' : undefined}
-    >
-      <Text style={styles.title}>Crear cuenta</Text>
+    <GradientBackground>
+      <KeyboardAvoidingView style={styles.flex} behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
+        <ScrollView contentContainerStyle={styles.scroll} keyboardShouldPersistTaps="handled">
+          <Text style={styles.brand}>🎓 LinguaPro</Text>
+          <Text style={styles.title}>Crea tu cuenta</Text>
+          <Text style={styles.subtitle}>Empieza a practicar en minutos</Text>
 
-      <View style={styles.form}>
-        <Input
-          placeholder="Correo electrónico"
-          keyboardType="email-address"
-          value={email}
-          onChangeText={setEmail}
-        />
-        <Input
-          placeholder="Contraseña"
-          secureTextEntry
-          value={password}
-          onChangeText={setPassword}
-        />
+          <GlassCard style={styles.card}>
+            <Input
+              placeholder="Correo electrónico"
+              keyboardType="email-address"
+              value={email}
+              onChangeText={setEmail}
+              autoCapitalize="none"
+            />
+            <View style={styles.gap} />
+            <Input placeholder="Contraseña" secureTextEntry value={password} onChangeText={setPassword} />
 
-        <View style={styles.roleRow}>
-          <Button
-            label="Soy estudiante"
-            variant={role === 'student' ? 'primary' : 'secondary'}
-            onPress={() => setRole('student')}
-            style={styles.roleButton}
+            <Text style={styles.roleLabel}>Soy...</Text>
+            <View style={styles.roleRow}>
+              <Button
+                label="Estudiante"
+                variant={role === 'student' ? 'primary' : 'secondary'}
+                onPress={() => setRole('student')}
+                style={styles.roleButton}
+              />
+              <Button
+                label="Profesor"
+                variant={role === 'teacher' ? 'primary' : 'secondary'}
+                onPress={() => setRole('teacher')}
+                style={styles.roleButton}
+              />
+            </View>
+          </GlassCard>
+
+          <PillButton
+            label="Registrarme"
+            onPress={handleRegister}
+            loading={loading}
+            style={styles.registerButton}
           />
-          <Button
-            label="Soy profesor"
-            variant={role === 'teacher' ? 'primary' : 'secondary'}
-            onPress={() => setRole('teacher')}
-            style={styles.roleButton}
-          />
-        </View>
 
-        <Button label="Registrarme" onPress={handleRegister} loading={loading} />
-      </View>
-
-      <View style={styles.footer}>
-        <Text style={styles.footerText}>¿Ya tienes cuenta?</Text>
-        <Text style={styles.link} onPress={() => navigation.navigate('Login')}>
-          Inicia sesión
-        </Text>
-      </View>
-    </KeyboardAvoidingView>
+          <View style={styles.footer}>
+            <Text style={styles.footerText}>¿Ya tienes cuenta?</Text>
+            <Text style={styles.link} onPress={() => navigation.navigate('Login')}>
+              Inicia sesión
+            </Text>
+          </View>
+        </ScrollView>
+      </KeyboardAvoidingView>
+    </GradientBackground>
   );
 }
 
 const styles = StyleSheet.create({
-  container: {
+  flex: {
     flex: 1,
+  },
+  scroll: {
+    flexGrow: 1,
     justifyContent: 'center',
     paddingHorizontal: spacing.lg,
-    backgroundColor: colors.background,
+    paddingVertical: spacing.xl,
+  },
+  brand: {
+    fontSize: 15,
+    fontWeight: '800',
+    color: vibrant.textOnGradientMuted,
+    textAlign: 'center',
+    marginBottom: spacing.xl,
+    letterSpacing: 0.5,
   },
   title: {
     fontSize: 28,
-    fontWeight: '700',
-    color: colors.text,
-    marginBottom: spacing.xl,
+    fontWeight: '800',
+    color: vibrant.textOnGradient,
     textAlign: 'center',
   },
-  form: {
-    gap: spacing.md,
+  subtitle: {
+    fontSize: 15,
+    color: vibrant.textOnGradientMuted,
+    textAlign: 'center',
+    marginTop: spacing.xs,
+    marginBottom: spacing.xl,
+  },
+  card: {
+    marginBottom: spacing.lg,
+  },
+  gap: {
+    height: spacing.md,
+  },
+  roleLabel: {
+    fontSize: 13,
+    fontWeight: '700',
+    color: colors.textMuted,
+    marginTop: spacing.lg,
+    marginBottom: spacing.sm,
   },
   roleRow: {
     flexDirection: 'row',
@@ -133,17 +169,19 @@ const styles = StyleSheet.create({
   roleButton: {
     flex: 1,
   },
+  registerButton: {
+    marginBottom: spacing.lg,
+  },
   footer: {
     flexDirection: 'row',
     justifyContent: 'center',
-    marginTop: spacing.xl,
     gap: spacing.xs,
   },
   footerText: {
-    color: colors.textMuted,
+    color: vibrant.textOnGradientMuted,
   },
   link: {
-    color: colors.primary,
-    fontWeight: '600',
+    color: vibrant.textOnGradient,
+    fontWeight: '700',
   },
 });

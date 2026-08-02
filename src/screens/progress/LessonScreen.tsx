@@ -6,7 +6,7 @@ import { ProgressStackParamList } from '../../navigation/types';
 import { Button } from '../../components/common/Button';
 import { supabase } from '../../config/supabase';
 import { CoursePlanItemStatus } from '../../types/database';
-import { colors, spacing } from '../../constants/theme';
+import { colors, spacing, vibrant } from '../../constants/theme';
 
 type Props = NativeStackScreenProps<ProgressStackParamList, 'Lesson'>;
 
@@ -118,8 +118,8 @@ const styles = StyleSheet.create({
     fontSize: 12,
     fontWeight: '700',
     textTransform: 'uppercase',
-    color: colors.primary,
-    backgroundColor: colors.surface,
+    color: vibrant.purple,
+    backgroundColor: '#EDE9FE',
     paddingHorizontal: spacing.sm,
     paddingVertical: 4,
     borderRadius: 12,
@@ -140,7 +140,7 @@ const styles = StyleSheet.create({
     marginBottom: spacing.lg,
   },
   status_not_started: {
-    backgroundColor: colors.surface,
+    backgroundColor: '#F3F4F6',
   },
   status_in_progress: {
     backgroundColor: '#FEF3C7',

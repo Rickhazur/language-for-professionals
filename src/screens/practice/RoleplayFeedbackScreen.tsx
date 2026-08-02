@@ -4,7 +4,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { PracticeStackParamList } from '../../navigation/types';
 import { Button } from '../../components/common/Button';
-import { colors, spacing } from '../../constants/theme';
+import { colors, spacing, cardShadow } from '../../constants/theme';
 
 type Props = NativeStackScreenProps<PracticeStackParamList, 'RoleplayFeedback'>;
 
@@ -51,9 +51,10 @@ const styles = StyleSheet.create({
     marginBottom: spacing.lg,
   },
   card: {
-    backgroundColor: colors.surface,
-    borderRadius: 12,
+    backgroundColor: '#fff',
+    borderRadius: 18,
     padding: spacing.lg,
+    ...cardShadow,
   },
   feedbackText: {
     fontSize: 16,

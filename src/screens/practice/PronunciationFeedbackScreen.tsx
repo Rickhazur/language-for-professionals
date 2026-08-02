@@ -6,7 +6,8 @@ import { PracticeStackParamList } from '../../navigation/types';
 import { Button } from '../../components/common/Button';
 import { scoreColor, scoreBackground } from '../../lib/scoreColor';
 import { WordErrorType } from '../../types/database';
-import { colors, spacing } from '../../constants/theme';
+import { colors, spacing, cardShadow, gradients } from '../../constants/theme';
+import { LinearGradient } from 'expo-linear-gradient';
 
 type Props = NativeStackScreenProps<PracticeStackParamList, 'PronunciationFeedback'>;
 
@@ -42,13 +43,13 @@ export function PronunciationFeedbackScreen({ route, navigation }: Props) {
         <Text style={styles.title}>Resultado de pronunciación</Text>
 
         {newBadges && newBadges.length > 0 && (
-          <View style={styles.badgeBanner}>
+          <LinearGradient colors={gradients.hero} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }} style={styles.badgeBanner}>
             {newBadges.map((badge) => (
               <Text key={badge.id} style={styles.badgeBannerText}>
                 {badge.icon} ¡Nueva insignia! {badge.title}
               </Text>
             ))}
-          </View>
+          </LinearGradient>
         )}
 
         <View style={styles.scoreRow}>
@@ -156,15 +157,14 @@ const styles = StyleSheet.create({
     marginBottom: spacing.lg,
   },
   badgeBanner: {
-    backgroundColor: '#FEF3C7',
-    borderRadius: 10,
+    borderRadius: 16,
     padding: spacing.md,
     marginBottom: spacing.lg,
   },
   badgeBannerText: {
     fontSize: 14,
     fontWeight: '700',
-    color: colors.text,
+    color: '#fff',
   },
   scoreRow: {
     flexDirection: 'row',
@@ -178,9 +178,10 @@ const styles = StyleSheet.create({
   },
   scoreBadge: {
     flex: 1,
-    borderRadius: 12,
+    borderRadius: 16,
     paddingVertical: spacing.md,
     alignItems: 'center',
+    ...cardShadow,
   },
   scoreValue: {
     fontSize: 28,
@@ -261,10 +262,11 @@ const styles = StyleSheet.create({
     color: colors.textMuted,
   },
   phonemeCard: {
-    backgroundColor: colors.surface,
-    borderRadius: 12,
+    backgroundColor: '#fff',
+    borderRadius: 18,
     padding: spacing.lg,
     marginTop: spacing.lg,
+    ...cardShadow,
   },
   phonemeCardTitle: {
     fontSize: 15,

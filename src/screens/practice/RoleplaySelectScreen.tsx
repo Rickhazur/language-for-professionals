@@ -7,7 +7,7 @@ import { Button } from '../../components/common/Button';
 import { useAuth } from '../../hooks/useAuth';
 import { supabase } from '../../config/supabase';
 import { CoursePlanRoleplay } from '../../types/database';
-import { colors, spacing } from '../../constants/theme';
+import { colors, spacing, vibrant, cardShadow } from '../../constants/theme';
 
 type Props = NativeStackScreenProps<PracticeStackParamList, 'RoleplaySelect'>;
 
@@ -143,10 +143,11 @@ const styles = StyleSheet.create({
     marginBottom: spacing.lg,
   },
   card: {
-    backgroundColor: colors.surface,
-    borderRadius: 12,
+    backgroundColor: '#fff',
+    borderRadius: 18,
     padding: spacing.md,
     marginBottom: spacing.md,
+    ...cardShadow,
   },
   cardBadges: {
     flexDirection: 'row',
@@ -156,8 +157,8 @@ const styles = StyleSheet.create({
   badge: {
     fontSize: 11,
     fontWeight: '700',
-    color: colors.primary,
-    backgroundColor: colors.background,
+    color: vibrant.purple,
+    backgroundColor: '#EDE9FE',
     paddingHorizontal: spacing.sm,
     paddingVertical: 2,
     borderRadius: 10,

@@ -4,29 +4,30 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useFocusEffect, useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
+import { Ionicons } from '@expo/vector-icons';
 import { PillButton } from '../../components/common/PillButton';
 import { Button } from '../../components/common/Button';
 import { useAuth } from '../../hooks/useAuth';
 import { supabase } from '../../config/supabase';
 import { AppStackParamList } from '../../navigation/types';
 import { LevelAssessment, StudentGamification } from '../../types/database';
-import { colors, spacing, gradients } from '../../constants/theme';
+import { colors, spacing, gradients, cardShadow } from '../../constants/theme';
 
 interface QuickAction {
-  icon: string;
+  icon: keyof typeof Ionicons.glyphMap;
   label: string;
   route: string;
 }
 
 const QUICK_ACTIONS: QuickAction[] = [
-  { icon: '🗣️', label: 'Shadowing', route: 'Practice' },
-  { icon: '💬', label: 'Roleplay', route: 'Practice' },
-  { icon: '📊', label: 'Mi progreso', route: 'Progress' },
-  { icon: '🎯', label: 'Evaluación', route: 'Assessment' },
+  { icon: 'mic-outline', label: 'Shadowing', route: 'Practice' },
+  { icon: 'chatbubble-ellipses-outline', label: 'Roleplay', route: 'Practice' },
+  { icon: 'stats-chart-outline', label: 'Mi progreso', route: 'Progress' },
+  { icon: 'locate-outline', label: 'Evaluación', route: 'Assessment' },
 ];
 
 interface FeatureCard {
-  icon: string;
+  icon: keyof typeof Ionicons.glyphMap;
   title: string;
   subtitle: string;
   route: string;
@@ -34,8 +35,8 @@ interface FeatureCard {
 }
 
 const FEATURE_CARDS: FeatureCard[] = [
-  { icon: '📚', title: 'Plan de curso', subtitle: 'Módulos y vocabulario', route: 'Progress', colors: ['#818CF8', '#6366F1'] },
-  { icon: '🏅', title: 'Insignias', subtitle: 'Tus logros', route: 'Profile', colors: ['#FB923C', '#F59E0B'] },
+  { icon: 'book-outline', title: 'Plan de curso', subtitle: 'Módulos y vocabulario', route: 'Progress', colors: ['#818CF8', '#6366F1'] },
+  { icon: 'trophy-outline', title: 'Insignias', subtitle: 'Tus logros', route: 'Profile', colors: ['#FB923C', '#F59E0B'] },
 ];
 
 export function HomeScreen() {
@@ -107,7 +108,7 @@ export function HomeScreen() {
         <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.quickActionsRow}>
           {QUICK_ACTIONS.map((action) => (
             <Pressable key={action.label} style={styles.quickAction} onPress={() => goTo(action.route)}>
-              <Text style={styles.quickActionIcon}>{action.icon}</Text>
+              <Ionicons name={action.icon} size={16} color={colors.primary} />
               <Text style={styles.quickActionLabel}>{action.label}</Text>
             </Pressable>
           ))}
@@ -118,7 +119,7 @@ export function HomeScreen() {
           {FEATURE_CARDS.map((card) => (
             <Pressable key={card.title} style={styles.featureCard} onPress={() => goTo(card.route)}>
               <LinearGradient colors={card.colors} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }} style={styles.featureIconWrap}>
-                <Text style={styles.featureIcon}>{card.icon}</Text>
+                <Ionicons name={card.icon} size={20} color="#fff" />
               </LinearGradient>
               <Text style={styles.featureTitle}>{card.title}</Text>
               <Text style={styles.featureSubtitle}>{card.subtitle}</Text>
@@ -212,9 +213,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     gap: 6,
-  },
-  quickActionIcon: {
-    fontSize: 16,
+    ...cardShadow,
   },
   quickActionLabel: {
     fontSize: 13,
@@ -237,6 +236,7 @@ const styles = StyleSheet.create({
     backgroundColor: colors.surface,
     borderRadius: 18,
     padding: spacing.md,
+    ...cardShadow,
   },
   featureIconWrap: {
     width: 44,
@@ -245,9 +245,6 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     marginBottom: spacing.sm,
-  },
-  featureIcon: {
-    fontSize: 20,
   },
   featureTitle: {
     fontSize: 14,
@@ -264,6 +261,7 @@ const styles = StyleSheet.create({
     borderRadius: 18,
     padding: spacing.lg,
     gap: spacing.sm,
+    ...cardShadow,
   },
   levelLabel: {
     fontSize: 14,

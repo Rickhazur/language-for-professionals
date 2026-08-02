@@ -15,13 +15,13 @@ export function Input(props: TextInputProps) {
 
 const styles = StyleSheet.create({
   input: {
-    borderWidth: 1,
+    borderWidth: 1.5,
     borderColor: colors.border,
-    borderRadius: 8,
+    borderRadius: 14,
     paddingHorizontal: spacing.md,
     paddingVertical: spacing.sm + 4,
     fontSize: 16,
     color: colors.text,
-    backgroundColor: colors.surface,
+    backgroundColor: '#fff',
   },
 });

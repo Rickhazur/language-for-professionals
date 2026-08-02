@@ -1,11 +1,13 @@
 import React, { useState } from 'react';
-import { View, Text, StyleSheet, Alert } from 'react-native';
+import { Text, StyleSheet, Alert } from 'react-native';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { AuthStackParamList } from '../../navigation/types';
 import { Input } from '../../components/common/Input';
-import { Button } from '../../components/common/Button';
+import { PillButton } from '../../components/common/PillButton';
+import { GradientBackground } from '../../components/common/GradientBackground';
+import { GlassCard } from '../../components/common/GlassCard';
 import { supabase } from '../../config/supabase';
-import { colors, spacing } from '../../constants/theme';
+import { spacing, vibrant } from '../../constants/theme';
 
 type Props = NativeStackScreenProps<AuthStackParamList, 'ForgotPassword'>;
 
@@ -30,37 +32,54 @@ export function ForgotPasswordScreen({ navigation }: Props) {
   };
 
   return (
-    <View style={styles.container}>
+    <GradientBackground>
       <Text style={styles.title}>Recuperar contraseña</Text>
-      <View style={styles.form}>
+      <Text style={styles.subtitle}>Te enviaremos un enlace a tu correo</Text>
+
+      <GlassCard style={styles.card}>
         <Input
           placeholder="Correo electrónico"
           keyboardType="email-address"
           value={email}
           onChangeText={setEmail}
+          autoCapitalize="none"
         />
-        <Button label="Enviar enlace" onPress={handleReset} loading={loading} />
-        <Button label="Volver" variant="secondary" onPress={() => navigation.goBack()} />
-      </View>
-    </View>
+        <PillButton label="Enviar enlace" onPress={handleReset} loading={loading} style={styles.sendButton} />
+      </GlassCard>
+
+      <Text style={styles.backLink} onPress={() => navigation.goBack()}>
+        ← Volver
+      </Text>
+    </GradientBackground>
   );
 }
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    justifyContent: 'center',
-    paddingHorizontal: spacing.lg,
-    backgroundColor: colors.background,
-  },
   title: {
-    fontSize: 24,
-    fontWeight: '700',
-    color: colors.text,
-    marginBottom: spacing.xl,
+    fontSize: 26,
+    fontWeight: '800',
+    color: vibrant.textOnGradient,
     textAlign: 'center',
+    marginTop: '30%',
   },
-  form: {
-    gap: spacing.md,
+  subtitle: {
+    fontSize: 15,
+    color: vibrant.textOnGradientMuted,
+    textAlign: 'center',
+    marginTop: spacing.xs,
+    marginBottom: spacing.xl,
+    paddingHorizontal: spacing.lg,
+  },
+  card: {
+    marginHorizontal: spacing.lg,
+  },
+  sendButton: {
+    marginTop: spacing.md,
+  },
+  backLink: {
+    textAlign: 'center',
+    color: vibrant.textOnGradient,
+    fontWeight: '700',
+    marginTop: spacing.lg,
   },
 });

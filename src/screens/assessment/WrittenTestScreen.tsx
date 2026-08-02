@@ -15,7 +15,7 @@ import {
   pickQuestion,
   summarizeWritten,
 } from '../../features/assessment/engine';
-import { colors, spacing } from '../../constants/theme';
+import { colors, spacing, vibrant, cardShadow } from '../../constants/theme';
 
 type Props = NativeStackScreenProps<AssessmentStackParamList, 'WrittenTest'>;
 
@@ -112,8 +112,8 @@ const styles = StyleSheet.create({
   },
   skillTag: {
     alignSelf: 'flex-start',
-    backgroundColor: colors.surface,
-    color: colors.primary,
+    backgroundColor: '#EDE9FE',
+    color: vibrant.purple,
     fontSize: 12,
     fontWeight: '700',
     textTransform: 'uppercase',
@@ -130,24 +130,25 @@ const styles = StyleSheet.create({
     marginBottom: spacing.lg,
   },
   option: {
-    borderWidth: 1,
-    borderColor: colors.border,
-    borderRadius: 10,
+    borderWidth: 1.5,
+    borderColor: 'transparent',
+    borderRadius: 16,
     padding: spacing.md,
     marginBottom: spacing.sm,
-    backgroundColor: colors.surface,
+    backgroundColor: '#fff',
+    ...cardShadow,
   },
   optionSelected: {
-    borderColor: colors.primary,
-    backgroundColor: '#EFF6FF',
+    borderColor: vibrant.purple,
+    backgroundColor: '#F5F3FF',
   },
   optionText: {
     fontSize: 16,
     color: colors.text,
   },
   optionTextSelected: {
-    color: colors.primary,
-    fontWeight: '600',
+    color: vibrant.purple,
+    fontWeight: '700',
   },
   nextButton: {
     marginHorizontal: spacing.lg,

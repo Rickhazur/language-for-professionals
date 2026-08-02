@@ -15,7 +15,7 @@ import {
   getRecordingContentType,
 } from '../../lib/pronunciationRecording';
 import { buildGamificationMessage } from '../../lib/gamificationAlert';
-import { colors, spacing } from '../../constants/theme';
+import { colors, spacing, cardShadow } from '../../constants/theme';
 
 type Props = NativeStackScreenProps<PracticeStackParamList, 'Shadowing'>;
 type RecordingStatus = 'idle' | 'recording' | 'recorded';
@@ -296,8 +296,10 @@ export function ShadowingScreen({ navigation }: Props) {
       </View>
 
       <View style={styles.content}>
-        <Text style={styles.termLabel}>Vocabulario: {currentItem.term}</Text>
-        <Text style={styles.sentence}>{currentItem.sentence}</Text>
+        <View style={styles.sentenceCard}>
+          <Text style={styles.termLabel}>Vocabulario: {currentItem.term}</Text>
+          <Text style={styles.sentence}>{currentItem.sentence}</Text>
+        </View>
 
         <Button
           label="Escuchar frase nativa"
@@ -397,6 +399,13 @@ const styles = StyleSheet.create({
     padding: spacing.lg,
     justifyContent: 'center',
   },
+  sentenceCard: {
+    backgroundColor: '#fff',
+    borderRadius: 18,
+    padding: spacing.lg,
+    marginBottom: spacing.xl,
+    ...cardShadow,
+  },
   termLabel: {
     fontSize: 13,
     color: colors.textMuted,
@@ -406,7 +415,6 @@ const styles = StyleSheet.create({
     fontSize: 22,
     fontWeight: '700',
     color: colors.text,
-    marginBottom: spacing.xl,
   },
   actionButton: {
     marginBottom: spacing.md,

@@ -15,7 +15,7 @@ import {
   CoursePlanRoleplay,
   CoursePlanVocabularyTerm,
 } from '../../types/database';
-import { colors, spacing } from '../../constants/theme';
+import { colors, spacing, vibrant, cardShadow } from '../../constants/theme';
 
 interface CoursePlanData {
   plan: CoursePlan;
@@ -49,7 +49,7 @@ const STATUS_LABELS: Record<CoursePlanItemStatus, string> = {
 };
 
 const STATUS_BADGE_STYLES: Record<CoursePlanItemStatus, { backgroundColor: string }> = {
-  not_started: { backgroundColor: colors.background },
+  not_started: { backgroundColor: '#F3F4F6' },
   in_progress: { backgroundColor: '#FEF3C7' },
   completed: { backgroundColor: '#DCFCE7' },
 };
@@ -276,9 +276,10 @@ const styles = StyleSheet.create({
     marginBottom: spacing.lg,
   },
   card: {
-    backgroundColor: colors.surface,
-    borderRadius: 12,
+    backgroundColor: '#fff',
+    borderRadius: 18,
     padding: spacing.lg,
+    ...cardShadow,
   },
   cardText: {
     fontSize: 15,
@@ -318,10 +319,11 @@ const styles = StyleSheet.create({
     marginBottom: spacing.xs,
   },
   moduleCard: {
-    backgroundColor: colors.surface,
-    borderRadius: 10,
+    backgroundColor: '#fff',
+    borderRadius: 16,
     padding: spacing.md,
     marginBottom: spacing.sm,
+    ...cardShadow,
   },
   moduleHeaderRow: {
     flexDirection: 'row',
@@ -348,8 +350,8 @@ const styles = StyleSheet.create({
     fontSize: 11,
     fontWeight: '700',
     textTransform: 'uppercase',
-    color: colors.primary,
-    backgroundColor: colors.background,
+    color: vibrant.purple,
+    backgroundColor: '#EDE9FE',
     paddingHorizontal: spacing.sm,
     paddingVertical: 2,
     borderRadius: 10,
@@ -392,10 +394,11 @@ const styles = StyleSheet.create({
     marginTop: 2,
   },
   roleplayCard: {
-    backgroundColor: colors.surface,
-    borderRadius: 10,
+    backgroundColor: '#fff',
+    borderRadius: 16,
     padding: spacing.md,
     marginBottom: spacing.sm,
+    ...cardShadow,
   },
   roleplayBadges: {
     flexDirection: 'row',
@@ -405,8 +408,8 @@ const styles = StyleSheet.create({
   badge: {
     fontSize: 11,
     fontWeight: '700',
-    color: colors.primary,
-    backgroundColor: colors.background,
+    color: vibrant.purple,
+    backgroundColor: '#EDE9FE',
     paddingHorizontal: spacing.sm,
     paddingVertical: 2,
     borderRadius: 10,

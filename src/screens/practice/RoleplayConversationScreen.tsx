@@ -17,7 +17,8 @@ import { Input } from '../../components/common/Input';
 import { supabase } from '../../config/supabase';
 import { buildGamificationMessage } from '../../lib/gamificationAlert';
 import { RoleplayMessage } from '../../types/database';
-import { colors, spacing } from '../../constants/theme';
+import { colors, spacing, gradients } from '../../constants/theme';
+import { LinearGradient } from 'expo-linear-gradient';
 
 type Props = NativeStackScreenProps<PracticeStackParamList, 'RoleplayConversation'>;
 
@@ -137,14 +138,23 @@ export function RoleplayConversationScreen({ route, navigation }: Props) {
           contentContainerStyle={styles.messagesContent}
           onContentSizeChange={() => scrollRef.current?.scrollToEnd({ animated: true })}
         >
-          {messages.map((m) => (
-            <View
-              key={m.id}
-              style={[styles.bubble, m.role === 'assistant' ? styles.bubbleAssistant : styles.bubbleUser]}
-            >
-              <Text style={[styles.bubbleText, m.role === 'user' && styles.bubbleTextUser]}>{m.content}</Text>
-            </View>
-          ))}
+          {messages.map((m) =>
+            m.role === 'assistant' ? (
+              <View key={m.id} style={[styles.bubble, styles.bubbleAssistant]}>
+                <Text style={styles.bubbleText}>{m.content}</Text>
+              </View>
+            ) : (
+              <LinearGradient
+                key={m.id}
+                colors={gradients.primaryButton}
+                start={{ x: 0, y: 0 }}
+                end={{ x: 1, y: 0 }}
+                style={[styles.bubble, styles.bubbleUser]}
+              >
+                <Text style={[styles.bubbleText, styles.bubbleTextUser]}>{m.content}</Text>
+              </LinearGradient>
+            )
+          )}
           {sending && <ActivityIndicator style={styles.typingIndicator} color={colors.primary} />}
         </ScrollView>
 
@@ -206,17 +216,18 @@ const styles = StyleSheet.create({
   },
   bubble: {
     maxWidth: '80%',
-    borderRadius: 14,
+    borderRadius: 18,
     padding: spacing.md,
     marginBottom: spacing.sm,
   },
   bubbleAssistant: {
     alignSelf: 'flex-start',
-    backgroundColor: colors.surface,
+    backgroundColor: '#fff',
+    borderWidth: 1,
+    borderColor: colors.border,
   },
   bubbleUser: {
     alignSelf: 'flex-end',
-    backgroundColor: colors.primary,
   },
   bubbleText: {
     fontSize: 15,

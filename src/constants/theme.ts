@@ -1,14 +1,29 @@
+import { Platform } from 'react-native';
+
 export const colors = {
   primary: '#2563EB',
   secondary: '#F59E0B',
-  background: '#FFFFFF',
-  surface: '#F3F4F6',
+  background: '#F8F7FD',
+  surface: '#FFFFFF',
   text: '#111827',
   textMuted: '#6B7280',
   border: '#E5E7EB',
   error: '#DC2626',
   success: '#16A34A',
 };
+
+// Sombra suave y consistente para tarjetas blancas sobre el fondo claro —
+// mismo tono/opacidad que GlassCard y las tarjetas de WelcomeScreen.
+export const cardShadow = Platform.select({
+  ios: {
+    shadowColor: '#3B0764',
+    shadowOpacity: 0.08,
+    shadowRadius: 12,
+    shadowOffset: { width: 0, height: 4 },
+  },
+  android: { elevation: 3 },
+  default: { boxShadow: '0 4px 12px rgba(59, 7, 100, 0.08)' },
+}) as object;
 
 // Paleta "vibrante" — gradientes/glass usados en las pantallas rediseñadas
 // (Login, Inicio, tab bar). El resto de la app sigue usando `colors` arriba.

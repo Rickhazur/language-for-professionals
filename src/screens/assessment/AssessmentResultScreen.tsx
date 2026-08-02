@@ -4,7 +4,8 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { AssessmentStackParamList } from '../../navigation/types';
 import { Button } from '../../components/common/Button';
-import { colors, spacing } from '../../constants/theme';
+import { colors, spacing, gradients, cardShadow } from '../../constants/theme';
+import { LinearGradient } from 'expo-linear-gradient';
 
 type Props = NativeStackScreenProps<AssessmentStackParamList, 'Result'>;
 
@@ -21,7 +22,9 @@ export function AssessmentResultScreen({ route, navigation }: Props) {
     <SafeAreaView style={styles.container}>
       <View style={styles.content}>
         <Text style={styles.label}>Tu nivel estimado es</Text>
-        <Text style={styles.level}>{assessment.overall_level}</Text>
+        <LinearGradient colors={gradients.hero} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }} style={styles.levelCircle}>
+          <Text style={styles.level}>{assessment.overall_level}</Text>
+        </LinearGradient>
 
         <View style={styles.breakdown}>
           {SKILL_ROWS.map(({ key, label }) => {
@@ -60,17 +63,28 @@ const styles = StyleSheet.create({
   label: {
     fontSize: 16,
     color: colors.textMuted,
-    marginBottom: spacing.sm,
+    marginBottom: spacing.md,
+  },
+  levelCircle: {
+    width: 140,
+    height: 140,
+    borderRadius: 70,
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginBottom: spacing.xl,
   },
   level: {
-    fontSize: 64,
+    fontSize: 48,
     fontWeight: '800',
-    color: colors.primary,
-    marginBottom: spacing.xl,
+    color: '#fff',
   },
   breakdown: {
     width: '100%',
     gap: spacing.sm,
+    backgroundColor: '#fff',
+    borderRadius: 18,
+    padding: spacing.md,
+    ...cardShadow,
   },
   row: {
     flexDirection: 'row',

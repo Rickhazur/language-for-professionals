@@ -11,7 +11,7 @@ import { useAuth } from '../../hooks/useAuth';
 import { supabase } from '../../config/supabase';
 import { ORAL_SENTENCES } from '../../data/oralAssessmentSentences';
 import { computeOverallLevel, simulateSpeakingScore } from '../../features/assessment/engine';
-import { colors, spacing } from '../../constants/theme';
+import { colors, spacing, cardShadow } from '../../constants/theme';
 
 type Props = NativeStackScreenProps<AssessmentStackParamList, 'OralAssessment'>;
 type RecordingStatus = 'idle' | 'recording' | 'recorded';
@@ -118,7 +118,9 @@ export function OralAssessmentScreen({ route, navigation }: Props) {
 
       <View style={styles.content}>
         <Text style={styles.instructions}>Escucha la frase y repítela en voz alta.</Text>
-        <Text style={styles.sentence}>{sentences[sentenceIndex]}</Text>
+        <View style={styles.sentenceCard}>
+          <Text style={styles.sentence}>{sentences[sentenceIndex]}</Text>
+        </View>
 
         <Button label="Escuchar frase" variant="secondary" onPress={playReference} style={styles.listenButton} />
 
@@ -170,11 +172,17 @@ const styles = StyleSheet.create({
     color: colors.textMuted,
     marginBottom: spacing.sm,
   },
+  sentenceCard: {
+    backgroundColor: '#fff',
+    borderRadius: 18,
+    padding: spacing.lg,
+    marginBottom: spacing.xl,
+    ...cardShadow,
+  },
   sentence: {
     fontSize: 22,
     fontWeight: '700',
     color: colors.text,
-    marginBottom: spacing.xl,
   },
   listenButton: {
     marginBottom: spacing.md,

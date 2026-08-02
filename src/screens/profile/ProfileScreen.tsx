@@ -6,7 +6,8 @@ import { Button } from '../../components/common/Button';
 import { useAuth } from '../../hooks/useAuth';
 import { supabase } from '../../config/supabase';
 import { StudentBadge } from '../../types/database';
-import { colors, spacing } from '../../constants/theme';
+import { colors, spacing, gradients, cardShadow } from '../../constants/theme';
+import { LinearGradient } from 'expo-linear-gradient';
 
 export function ProfileScreen() {
   const { session, signOut } = useAuth();
@@ -37,10 +38,19 @@ export function ProfileScreen() {
     }, [session])
   );
 
+  const initial = session?.user.email?.[0]?.toUpperCase() ?? '?';
+
   return (
     <SafeAreaView style={styles.container}>
-      <Text style={styles.title}>Mi perfil</Text>
-      <Text style={styles.email}>{session?.user.email}</Text>
+      <View style={styles.header}>
+        <LinearGradient colors={gradients.hero} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }} style={styles.avatar}>
+          <Text style={styles.avatarText}>{initial}</Text>
+        </LinearGradient>
+        <View>
+          <Text style={styles.title}>Mi perfil</Text>
+          <Text style={styles.email}>{session?.user.email}</Text>
+        </View>
+      </View>
 
       <Text style={styles.sectionTitle}>Insignias</Text>
       {loadingBadges ? (
@@ -70,16 +80,33 @@ const styles = StyleSheet.create({
     padding: spacing.lg,
     backgroundColor: colors.background,
   },
+  header: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: spacing.md,
+    marginBottom: spacing.xl,
+  },
+  avatar: {
+    width: 56,
+    height: 56,
+    borderRadius: 28,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  avatarText: {
+    fontSize: 22,
+    fontWeight: '800',
+    color: '#fff',
+  },
   title: {
-    fontSize: 24,
-    fontWeight: '700',
+    fontSize: 22,
+    fontWeight: '800',
     color: colors.text,
-    marginBottom: spacing.sm,
   },
   email: {
-    fontSize: 16,
+    fontSize: 14,
     color: colors.textMuted,
-    marginBottom: spacing.xl,
+    marginTop: 2,
   },
   sectionTitle: {
     fontSize: 16,
@@ -98,10 +125,11 @@ const styles = StyleSheet.create({
   },
   badgeCard: {
     width: '31%',
-    backgroundColor: colors.surface,
-    borderRadius: 10,
+    backgroundColor: '#fff',
+    borderRadius: 14,
     padding: spacing.sm,
     alignItems: 'center',
+    ...cardShadow,
   },
   badgeIcon: {
     fontSize: 28,

@@ -1,6 +1,7 @@
 import React from 'react';
 import { Pressable, Text, StyleSheet } from 'react-native';
-import { colors, spacing } from '../../constants/theme';
+import { LinearGradient } from 'expo-linear-gradient';
+import { colors, gradients, spacing } from '../../constants/theme';
 
 interface ChipProps {
   label: string;
@@ -9,34 +10,46 @@ interface ChipProps {
 }
 
 export function Chip({ label, selected, onPress }: ChipProps) {
+  if (selected) {
+    return (
+      <Pressable onPress={onPress} style={styles.wrap}>
+        <LinearGradient colors={gradients.primaryButton} start={{ x: 0, y: 0 }} end={{ x: 1, y: 0 }} style={styles.chip}>
+          <Text style={styles.labelSelected}>{label}</Text>
+        </LinearGradient>
+      </Pressable>
+    );
+  }
+
   return (
-    <Pressable onPress={onPress} style={[styles.chip, selected && styles.chipSelected]}>
-      <Text style={[styles.label, selected && styles.labelSelected]}>{label}</Text>
+    <Pressable onPress={onPress} style={[styles.wrap, styles.chip, styles.chipUnselected]}>
+      <Text style={styles.label}>{label}</Text>
     </Pressable>
   );
 }
 
 const styles = StyleSheet.create({
-  chip: {
-    paddingVertical: spacing.sm,
-    paddingHorizontal: spacing.md,
-    borderRadius: 20,
-    borderWidth: 1,
-    borderColor: colors.border,
-    backgroundColor: colors.surface,
+  wrap: {
     marginRight: spacing.sm,
     marginBottom: spacing.sm,
   },
-  chipSelected: {
-    backgroundColor: colors.primary,
-    borderColor: colors.primary,
+  chip: {
+    paddingVertical: spacing.sm,
+    paddingHorizontal: spacing.md,
+    borderRadius: 999,
+  },
+  chipUnselected: {
+    borderWidth: 1,
+    borderColor: colors.border,
+    backgroundColor: '#fff',
   },
   label: {
     color: colors.text,
     fontSize: 14,
-    fontWeight: '500',
+    fontWeight: '600',
   },
   labelSelected: {
     color: '#fff',
+    fontSize: 14,
+    fontWeight: '700',
   },
 });

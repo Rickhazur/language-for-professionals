@@ -1,6 +1,6 @@
 import React from 'react';
 import { Pressable, Text, StyleSheet } from 'react-native';
-import { colors, spacing } from '../../constants/theme';
+import { colors, spacing, vibrant, cardShadow } from '../../constants/theme';
 
 interface LanguageCardProps {
   flag: string;
@@ -24,14 +24,15 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     paddingVertical: spacing.lg,
-    borderRadius: 12,
+    borderRadius: 18,
     borderWidth: 2,
-    borderColor: colors.border,
-    backgroundColor: colors.surface,
+    borderColor: 'transparent',
+    backgroundColor: '#fff',
+    ...cardShadow,
   },
   cardSelected: {
-    borderColor: colors.primary,
-    backgroundColor: '#EFF6FF',
+    borderColor: vibrant.purple,
+    backgroundColor: '#F5F3FF',
   },
   flag: {
     fontSize: 40,
@@ -39,10 +40,10 @@ const styles = StyleSheet.create({
   },
   label: {
     fontSize: 16,
-    fontWeight: '600',
+    fontWeight: '700',
     color: colors.text,
   },
   labelSelected: {
-    color: colors.primary,
+    color: vibrant.purple,
   },
 });
