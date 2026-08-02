@@ -1,9 +1,10 @@
 import React, { useCallback, useState } from 'react';
-import { Text, View, StyleSheet, ActivityIndicator } from 'react-native';
+import { Text, View, StyleSheet, ActivityIndicator, Pressable } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useFocusEffect } from '@react-navigation/native';
 import { Button } from '../../components/common/Button';
 import { useAuth } from '../../hooks/useAuth';
+import { useLanguage } from '../../hooks/useLanguage';
 import { supabase } from '../../config/supabase';
 import { StudentBadge } from '../../types/database';
 import { colors, spacing, gradients, cardShadow } from '../../constants/theme';
@@ -11,6 +12,7 @@ import { LinearGradient } from 'expo-linear-gradient';
 
 export function ProfileScreen() {
   const { session, signOut } = useAuth();
+  const { t, uiLanguage, setUiLanguage } = useLanguage();
   const [badges, setBadges] = useState<StudentBadge[]>([]);
   const [loadingBadges, setLoadingBadges] = useState(true);
 
@@ -47,16 +49,36 @@ export function ProfileScreen() {
           <Text style={styles.avatarText}>{initial}</Text>
         </LinearGradient>
         <View>
-          <Text style={styles.title}>Mi perfil</Text>
+          <Text style={styles.title}>{t('profile.title')}</Text>
           <Text style={styles.email}>{session?.user.email}</Text>
         </View>
       </View>
 
-      <Text style={styles.sectionTitle}>Insignias</Text>
+      <Text style={styles.sectionTitle}>{t('profile.languageLabel')}</Text>
+      <View style={styles.langToggle}>
+        <Pressable
+          onPress={() => setUiLanguage('es')}
+          style={[styles.langOption, uiLanguage === 'es' && styles.langOptionActive]}
+        >
+          <Text style={[styles.langOptionText, uiLanguage === 'es' && styles.langOptionTextActive]}>
+            {t('common.langSpanish')}
+          </Text>
+        </Pressable>
+        <Pressable
+          onPress={() => setUiLanguage('en')}
+          style={[styles.langOption, uiLanguage === 'en' && styles.langOptionActive]}
+        >
+          <Text style={[styles.langOptionText, uiLanguage === 'en' && styles.langOptionTextActive]}>
+            {t('common.langEnglish')}
+          </Text>
+        </Pressable>
+      </View>
+
+      <Text style={styles.sectionTitle}>{t('profile.badgesTitle')}</Text>
       {loadingBadges ? (
         <ActivityIndicator color={colors.primary} />
       ) : badges.length === 0 ? (
-        <Text style={styles.emptyText}>Todavía no ganaste ninguna insignia — sigue practicando.</Text>
+        <Text style={styles.emptyText}>{t('profile.emptyBadges')}</Text>
       ) : (
         <View style={styles.badgeGrid}>
           {badges.map((b) => (
@@ -69,7 +91,7 @@ export function ProfileScreen() {
         </View>
       )}
 
-      <Button label="Cerrar sesión" variant="secondary" onPress={signOut} style={styles.signOut} />
+      <Button label={t('profile.signOut')} variant="secondary" onPress={signOut} style={styles.signOut} />
     </SafeAreaView>
   );
 }
@@ -113,6 +135,32 @@ const styles = StyleSheet.create({
     fontWeight: '700',
     color: colors.text,
     marginBottom: spacing.sm,
+  },
+  langToggle: {
+    flexDirection: 'row',
+    backgroundColor: colors.surface,
+    borderRadius: 999,
+    padding: 3,
+    gap: 2,
+    alignSelf: 'flex-start',
+    marginBottom: spacing.xl,
+    ...cardShadow,
+  },
+  langOption: {
+    paddingVertical: 6,
+    paddingHorizontal: 16,
+    borderRadius: 999,
+  },
+  langOptionActive: {
+    backgroundColor: colors.primary,
+  },
+  langOptionText: {
+    fontSize: 13,
+    fontWeight: '700',
+    color: colors.textMuted,
+  },
+  langOptionTextActive: {
+    color: '#fff',
   },
   emptyText: {
     fontSize: 14,

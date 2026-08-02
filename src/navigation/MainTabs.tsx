@@ -8,6 +8,7 @@ import { HomeScreen } from '../screens/home/HomeScreen';
 import { PracticeStack } from './PracticeStack';
 import { ProgressStack } from './ProgressStack';
 import { ProfileScreen } from '../screens/profile/ProfileScreen';
+import { useLanguage } from '../hooks/useLanguage';
 import { colors, gradients } from '../constants/theme';
 
 const Tab = createBottomTabNavigator<MainTabsParamList>();
@@ -27,6 +28,8 @@ const ICONS_FILLED: Record<keyof MainTabsParamList, keyof typeof Ionicons.glyphM
 };
 
 export function MainTabs() {
+  const { t } = useLanguage();
+
   return (
     <Tab.Navigator
       screenOptions={({ route }) => ({
@@ -54,10 +57,10 @@ export function MainTabs() {
         tabBarInactiveTintColor: colors.textMuted,
       })}
     >
-      <Tab.Screen name="Home" component={HomeScreen} options={{ title: 'Inicio' }} />
-      <Tab.Screen name="Practice" component={PracticeStack} options={{ title: 'Práctica' }} />
-      <Tab.Screen name="Progress" component={ProgressStack} options={{ title: 'Progreso' }} />
-      <Tab.Screen name="Profile" component={ProfileScreen} options={{ title: 'Perfil' }} />
+      <Tab.Screen name="Home" component={HomeScreen} options={{ title: t('tabs.home') }} />
+      <Tab.Screen name="Practice" component={PracticeStack} options={{ title: t('tabs.practice') }} />
+      <Tab.Screen name="Progress" component={ProgressStack} options={{ title: t('tabs.progress') }} />
+      <Tab.Screen name="Profile" component={ProfileScreen} options={{ title: t('tabs.profile') }} />
     </Tab.Navigator>
   );
 }

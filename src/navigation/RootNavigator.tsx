@@ -1,7 +1,8 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { NavigationContainer } from '@react-navigation/native';
 import { ActivityIndicator, View, StyleSheet } from 'react-native';
 import { useAuth } from '../hooks/useAuth';
+import { useLanguage } from '../hooks/useLanguage';
 import { AuthStack } from './AuthStack';
 import { OnboardingStack } from './OnboardingStack';
 import { AppStack } from './AppStack';
@@ -10,6 +11,16 @@ import { colors } from '../constants/theme';
 
 export function RootNavigator() {
   const { session, loading, profile, studentProfile, profileLoading } = useAuth();
+  const { syncFromNativeLanguage } = useLanguage();
+
+  // El idioma de la interfaz sigue al idioma nativo del estudiante una vez
+  // que su perfil carga — salvo que ya haya elegido uno a mano (ver
+  // LanguageContext.syncFromNativeLanguage).
+  useEffect(() => {
+    if (studentProfile?.native_language) {
+      syncFromNativeLanguage(studentProfile.native_language);
+    }
+  }, [studentProfile?.native_language, syncFromNativeLanguage]);
 
   if (loading || (session && profileLoading)) {
     return (

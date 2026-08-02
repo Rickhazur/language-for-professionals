@@ -8,6 +8,7 @@ import { PillButton } from '../../components/common/PillButton';
 import { GradientBackground } from '../../components/common/GradientBackground';
 import { GlassCard } from '../../components/common/GlassCard';
 import { useAuth } from '../../hooks/useAuth';
+import { useLanguage } from '../../hooks/useLanguage';
 import { supabase } from '../../config/supabase';
 import { spacing, vibrant, colors } from '../../constants/theme';
 
@@ -16,6 +17,7 @@ type Role = 'student' | 'teacher';
 
 export function RegisterScreen({ navigation }: Props) {
   const { signUp, refreshProfile } = useAuth();
+  const { t } = useLanguage();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [role, setRole] = useState<Role>('student');
@@ -23,7 +25,7 @@ export function RegisterScreen({ navigation }: Props) {
 
   const handleRegister = async () => {
     if (!email || !password) {
-      Alert.alert('Faltan datos', 'Ingresa tu correo y contraseña.');
+      Alert.alert(t('common.missingDataTitle'), t('common.missingCredentialsMessage'));
       return;
     }
     setLoading(true);
@@ -31,7 +33,7 @@ export function RegisterScreen({ navigation }: Props) {
 
     if (error) {
       setLoading(false);
-      Alert.alert('Error al registrarse', error);
+      Alert.alert(t('register.alertErrorTitle'), error);
       return;
     }
 
@@ -59,7 +61,7 @@ export function RegisterScreen({ navigation }: Props) {
       return;
     }
 
-    Alert.alert('Cuenta creada', 'Revisa tu correo para confirmar tu cuenta.');
+    Alert.alert(t('register.alertCreatedTitle'), t('register.alertCreatedMessage'));
     navigation.navigate('Login');
   };
 
@@ -68,30 +70,35 @@ export function RegisterScreen({ navigation }: Props) {
       <KeyboardAvoidingView style={styles.flex} behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
         <ScrollView contentContainerStyle={styles.scroll} keyboardShouldPersistTaps="handled">
           <Text style={styles.brand}>🎓 LinguaPro</Text>
-          <Text style={styles.title}>Crea tu cuenta</Text>
-          <Text style={styles.subtitle}>Empieza a practicar en minutos</Text>
+          <Text style={styles.title}>{t('register.title')}</Text>
+          <Text style={styles.subtitle}>{t('register.subtitle')}</Text>
 
           <GlassCard style={styles.card}>
             <Input
-              placeholder="Correo electrónico"
+              placeholder={t('common.emailPlaceholder')}
               keyboardType="email-address"
               value={email}
               onChangeText={setEmail}
               autoCapitalize="none"
             />
             <View style={styles.gap} />
-            <Input placeholder="Contraseña" secureTextEntry value={password} onChangeText={setPassword} />
+            <Input
+              placeholder={t('common.passwordPlaceholder')}
+              secureTextEntry
+              value={password}
+              onChangeText={setPassword}
+            />
 
-            <Text style={styles.roleLabel}>Soy...</Text>
+            <Text style={styles.roleLabel}>{t('register.roleLabel')}</Text>
             <View style={styles.roleRow}>
               <Button
-                label="Estudiante"
+                label={t('register.roleStudent')}
                 variant={role === 'student' ? 'primary' : 'secondary'}
                 onPress={() => setRole('student')}
                 style={styles.roleButton}
               />
               <Button
-                label="Profesor"
+                label={t('register.roleTeacher')}
                 variant={role === 'teacher' ? 'primary' : 'secondary'}
                 onPress={() => setRole('teacher')}
                 style={styles.roleButton}
@@ -100,16 +107,16 @@ export function RegisterScreen({ navigation }: Props) {
           </GlassCard>
 
           <PillButton
-            label="Registrarme"
+            label={t('register.submitButton')}
             onPress={handleRegister}
             loading={loading}
             style={styles.registerButton}
           />
 
           <View style={styles.footer}>
-            <Text style={styles.footerText}>¿Ya tienes cuenta?</Text>
+            <Text style={styles.footerText}>{t('register.haveAccount')}</Text>
             <Text style={styles.link} onPress={() => navigation.navigate('Login')}>
-              Inicia sesión
+              {t('register.loginLink')}
             </Text>
           </View>
         </ScrollView>

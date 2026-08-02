@@ -8,36 +8,43 @@ import { Chip } from '../../components/common/Chip';
 import { Button } from '../../components/common/Button';
 import { OnboardingProgress } from '../../components/common/OnboardingProgress';
 import { useAuth } from '../../hooks/useAuth';
+import { useLanguage } from '../../hooks/useLanguage';
 import { supabase } from '../../config/supabase';
 import { LearningObjective } from '../../types/database';
+import { TranslationKey } from '../../i18n/translations';
 import { colors, spacing } from '../../constants/theme';
 
 type Props = NativeStackScreenProps<OnboardingStackParamList, 'ProfessionalProfile'>;
 
-const INDUSTRIES = [
-  'Tecnología',
-  'Finanzas',
-  'Salud',
-  'Educación',
-  'Manufactura',
-  'Ventas y comercio',
-  'Turismo y hospitalidad',
-  'Legal',
-  'Otra',
+// "value" es lo que se guarda en student_profiles.industry (texto libre) —
+// se mantiene en español sin importar el idioma de la interfaz, para no
+// cambiar lo que ya reciben los prompts de IA. "labelKey" es solo lo que se
+// muestra en pantalla.
+const INDUSTRIES: { value: string; labelKey: TranslationKey }[] = [
+  { value: 'Tecnología', labelKey: 'onboarding.industry.tech' },
+  { value: 'Finanzas', labelKey: 'onboarding.industry.finance' },
+  { value: 'Salud', labelKey: 'onboarding.industry.health' },
+  { value: 'Educación', labelKey: 'onboarding.industry.education' },
+  { value: 'Manufactura', labelKey: 'onboarding.industry.manufacturing' },
+  { value: 'Ventas y comercio', labelKey: 'onboarding.industry.sales' },
+  { value: 'Turismo y hospitalidad', labelKey: 'onboarding.industry.tourism' },
+  { value: 'Legal', labelKey: 'onboarding.industry.legal' },
+  { value: 'Otra', labelKey: 'onboarding.industry.other' },
 ];
 
-const OBJECTIVES: { value: LearningObjective; label: string }[] = [
-  { value: 'meetings', label: 'Reuniones' },
-  { value: 'emails', label: 'Correos' },
-  { value: 'negotiation', label: 'Negociación' },
-  { value: 'presentations', label: 'Presentaciones' },
-  { value: 'customer_service', label: 'Atención a clientes' },
-  { value: 'travel', label: 'Viajes' },
+const OBJECTIVES: { value: LearningObjective; labelKey: TranslationKey }[] = [
+  { value: 'meetings', labelKey: 'onboarding.objective.meetings' },
+  { value: 'emails', labelKey: 'onboarding.objective.emails' },
+  { value: 'negotiation', labelKey: 'onboarding.objective.negotiation' },
+  { value: 'presentations', labelKey: 'onboarding.objective.presentations' },
+  { value: 'customer_service', labelKey: 'onboarding.objective.customerService' },
+  { value: 'travel', labelKey: 'onboarding.objective.travel' },
 ];
 
 export function ProfessionalProfileScreen({ route }: Props) {
   const { targetLanguage, nativeLanguage } = route.params;
   const { session, refreshProfile } = useAuth();
+  const { t } = useLanguage();
   const [occupation, setOccupation] = useState('');
   const [industry, setIndustry] = useState<string | null>(null);
   const [objectives, setObjectives] = useState<Set<string>>(new Set());
@@ -57,7 +64,7 @@ export function ProfessionalProfileScreen({ route }: Props) {
   const handleFinish = async () => {
     if (!session) return;
     if (!canFinish) {
-      Alert.alert('Faltan datos', 'Completa tu ocupación, industria y al menos un objetivo.');
+      Alert.alert(t('common.missingDataTitle'), t('onboarding.alertMissingMessage'));
       return;
     }
     setLoading(true);
@@ -89,29 +96,27 @@ export function ProfessionalProfileScreen({ route }: Props) {
         <ScrollView contentContainerStyle={styles.container} keyboardShouldPersistTaps="handled">
           <OnboardingProgress step={2} total={2} />
 
-          <Text style={styles.question}>¿A qué te dedicas?</Text>
-          <Input placeholder="Ej. Gerente de ventas" value={occupation} onChangeText={setOccupation} />
+          <Text style={styles.question}>{t('onboarding.occupationQuestion')}</Text>
+          <Input placeholder={t('onboarding.occupationPlaceholder')} value={occupation} onChangeText={setOccupation} />
 
-          <Text style={[styles.question, styles.spacedQuestion]}>¿En qué industria trabajas?</Text>
+          <Text style={[styles.question, styles.spacedQuestion]}>{t('onboarding.industryQuestion')}</Text>
           <View style={styles.chipsRow}>
             {INDUSTRIES.map((option) => (
               <Chip
-                key={option}
-                label={option}
-                selected={industry === option}
-                onPress={() => setIndustry(option)}
+                key={option.value}
+                label={t(option.labelKey)}
+                selected={industry === option.value}
+                onPress={() => setIndustry(option.value)}
               />
             ))}
           </View>
 
-          <Text style={[styles.question, styles.spacedQuestion]}>
-            ¿Para qué quieres usar el idioma? (elige una o más)
-          </Text>
+          <Text style={[styles.question, styles.spacedQuestion]}>{t('onboarding.objectivesQuestion')}</Text>
           <View style={styles.chipsRow}>
             {OBJECTIVES.map((option) => (
               <Chip
                 key={option.value}
-                label={option.label}
+                label={t(option.labelKey)}
                 selected={objectives.has(option.value)}
                 onPress={() => toggleObjective(option.value)}
               />
@@ -119,7 +124,7 @@ export function ProfessionalProfileScreen({ route }: Props) {
           </View>
 
           <Button
-            label="Terminar"
+            label={t('onboarding.finishButton')}
             onPress={handleFinish}
             loading={loading}
             disabled={!canFinish}

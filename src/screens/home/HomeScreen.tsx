@@ -11,36 +11,39 @@ import { useAuth } from '../../hooks/useAuth';
 import { supabase } from '../../config/supabase';
 import { AppStackParamList } from '../../navigation/types';
 import { LevelAssessment, StudentGamification } from '../../types/database';
+import { useLanguage } from '../../hooks/useLanguage';
+import { TranslationKey } from '../../i18n/translations';
 import { colors, spacing, gradients, cardShadow } from '../../constants/theme';
 
 interface QuickAction {
   icon: keyof typeof Ionicons.glyphMap;
-  label: string;
+  labelKey: TranslationKey;
   route: string;
 }
 
 const QUICK_ACTIONS: QuickAction[] = [
-  { icon: 'mic-outline', label: 'Shadowing', route: 'Practice' },
-  { icon: 'chatbubble-ellipses-outline', label: 'Roleplay', route: 'Practice' },
-  { icon: 'stats-chart-outline', label: 'Mi progreso', route: 'Progress' },
-  { icon: 'locate-outline', label: 'Evaluación', route: 'Assessment' },
+  { icon: 'mic-outline', labelKey: 'home.quick.shadowing', route: 'Practice' },
+  { icon: 'chatbubble-ellipses-outline', labelKey: 'home.quick.roleplay', route: 'Practice' },
+  { icon: 'stats-chart-outline', labelKey: 'home.quick.progress', route: 'Progress' },
+  { icon: 'locate-outline', labelKey: 'home.quick.assessment', route: 'Assessment' },
 ];
 
 interface FeatureCard {
   icon: keyof typeof Ionicons.glyphMap;
-  title: string;
-  subtitle: string;
+  titleKey: TranslationKey;
+  subtitleKey: TranslationKey;
   route: string;
   colors: readonly [string, string];
 }
 
 const FEATURE_CARDS: FeatureCard[] = [
-  { icon: 'book-outline', title: 'Plan de curso', subtitle: 'Módulos y vocabulario', route: 'Progress', colors: ['#818CF8', '#6366F1'] },
-  { icon: 'trophy-outline', title: 'Insignias', subtitle: 'Tus logros', route: 'Profile', colors: ['#FB923C', '#F59E0B'] },
+  { icon: 'book-outline', titleKey: 'home.coursePlanTitle', subtitleKey: 'home.coursePlanSubtitle', route: 'Progress', colors: ['#818CF8', '#6366F1'] },
+  { icon: 'trophy-outline', titleKey: 'home.badgesTitle', subtitleKey: 'home.badgesSubtitle', route: 'Profile', colors: ['#FB923C', '#F59E0B'] },
 ];
 
 export function HomeScreen() {
   const { session } = useAuth();
+  const { t } = useLanguage();
   const navigation = useNavigation<NativeStackNavigationProp<AppStackParamList>>();
   const [latestAssessment, setLatestAssessment] = useState<LevelAssessment | null>(null);
   const [loadingAssessment, setLoadingAssessment] = useState(true);
@@ -88,41 +91,41 @@ export function HomeScreen() {
       <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
         <View style={styles.headerRow}>
           <View>
-            <Text style={styles.greeting}>¡Hola! 👋</Text>
-            <Text style={styles.subtitle}>¿Qué quieres practicar hoy?</Text>
+            <Text style={styles.greeting}>{t('common.greeting')}</Text>
+            <Text style={styles.subtitle}>{t('home.subtitle')}</Text>
           </View>
         </View>
 
         <LinearGradient colors={gradients.hero} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }} style={styles.statsCard}>
           <View style={styles.statBlock}>
             <Text style={styles.statValue}>🔥 {gamification?.current_streak ?? 0}</Text>
-            <Text style={styles.statLabel}>Racha (días)</Text>
+            <Text style={styles.statLabel}>{t('home.streakLabel')}</Text>
           </View>
           <View style={styles.statDivider} />
           <View style={styles.statBlock}>
             <Text style={styles.statValue}>⭐ {gamification?.total_points ?? 0}</Text>
-            <Text style={styles.statLabel}>Puntos</Text>
+            <Text style={styles.statLabel}>{t('home.pointsLabel')}</Text>
           </View>
         </LinearGradient>
 
         <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.quickActionsRow}>
           {QUICK_ACTIONS.map((action) => (
-            <Pressable key={action.label} style={styles.quickAction} onPress={() => goTo(action.route)}>
+            <Pressable key={action.labelKey} style={styles.quickAction} onPress={() => goTo(action.route)}>
               <Ionicons name={action.icon} size={16} color={colors.primary} />
-              <Text style={styles.quickActionLabel}>{action.label}</Text>
+              <Text style={styles.quickActionLabel}>{t(action.labelKey)}</Text>
             </Pressable>
           ))}
         </ScrollView>
 
-        <Text style={styles.sectionTitle}>Funciones destacadas</Text>
+        <Text style={styles.sectionTitle}>{t('home.featuredTitle')}</Text>
         <View style={styles.featureGrid}>
           {FEATURE_CARDS.map((card) => (
-            <Pressable key={card.title} style={styles.featureCard} onPress={() => goTo(card.route)}>
+            <Pressable key={card.titleKey} style={styles.featureCard} onPress={() => goTo(card.route)}>
               <LinearGradient colors={card.colors} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }} style={styles.featureIconWrap}>
                 <Ionicons name={card.icon} size={20} color="#fff" />
               </LinearGradient>
-              <Text style={styles.featureTitle}>{card.title}</Text>
-              <Text style={styles.featureSubtitle}>{card.subtitle}</Text>
+              <Text style={styles.featureTitle}>{t(card.titleKey)}</Text>
+              <Text style={styles.featureSubtitle}>{t(card.subtitleKey)}</Text>
             </Pressable>
           ))}
         </View>
@@ -130,18 +133,18 @@ export function HomeScreen() {
         <View style={styles.levelCard}>
           {loadingAssessment ? null : latestAssessment ? (
             <>
-              <Text style={styles.levelLabel}>Tu nivel actual</Text>
+              <Text style={styles.levelLabel}>{t('home.currentLevelLabel')}</Text>
               <Text style={styles.levelValue}>{latestAssessment.overall_level}</Text>
               <Button
-                label="Repetir evaluación de nivel"
+                label={t('home.retakeAssessment')}
                 variant="secondary"
                 onPress={() => navigation.navigate('Assessment')}
               />
             </>
           ) : (
             <>
-              <Text style={styles.levelLabel}>Aún no has tomado tu evaluación de nivel</Text>
-              <PillButton label="Comenzar evaluación" onPress={() => navigation.navigate('Assessment')} />
+              <Text style={styles.levelLabel}>{t('home.noAssessmentLabel')}</Text>
+              <PillButton label={t('home.startAssessment')} onPress={() => navigation.navigate('Assessment')} />
             </>
           )}
         </View>

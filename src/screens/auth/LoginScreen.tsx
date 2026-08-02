@@ -7,26 +7,28 @@ import { PillButton } from '../../components/common/PillButton';
 import { GradientBackground } from '../../components/common/GradientBackground';
 import { GlassCard } from '../../components/common/GlassCard';
 import { useAuth } from '../../hooks/useAuth';
+import { useLanguage } from '../../hooks/useLanguage';
 import { spacing, vibrant, colors } from '../../constants/theme';
 
 type Props = NativeStackScreenProps<AuthStackParamList, 'Login'>;
 
 export function LoginScreen({ navigation }: Props) {
   const { signIn } = useAuth();
+  const { t } = useLanguage();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
 
   const handleLogin = async () => {
     if (!email || !password) {
-      Alert.alert('Faltan datos', 'Ingresa tu correo y contraseña.');
+      Alert.alert(t('common.missingDataTitle'), t('common.missingCredentialsMessage'));
       return;
     }
     setLoading(true);
     const { error } = await signIn(email.trim(), password);
     setLoading(false);
     if (error) {
-      Alert.alert('Error al iniciar sesión', error);
+      Alert.alert(t('login.alertErrorTitle'), error);
     }
   };
 
@@ -36,30 +38,40 @@ export function LoginScreen({ navigation }: Props) {
         <ScrollView contentContainerStyle={styles.scroll} keyboardShouldPersistTaps="handled">
           <Text style={styles.brand}>🎓 LinguaPro</Text>
           <Text style={styles.wave}>👋</Text>
-          <Text style={styles.title}>¡Hola de nuevo!</Text>
-          <Text style={styles.subtitle}>Inicia sesión para seguir practicando</Text>
+          <Text style={styles.title}>{t('login.title')}</Text>
+          <Text style={styles.subtitle}>{t('login.subtitle')}</Text>
 
           <GlassCard style={styles.card}>
             <Input
-              placeholder="Correo electrónico"
+              placeholder={t('common.emailPlaceholder')}
               keyboardType="email-address"
               value={email}
               onChangeText={setEmail}
               autoCapitalize="none"
             />
             <View style={styles.gap} />
-            <Input placeholder="Contraseña" secureTextEntry value={password} onChangeText={setPassword} />
+            <Input
+              placeholder={t('common.passwordPlaceholder')}
+              secureTextEntry
+              value={password}
+              onChangeText={setPassword}
+            />
 
-            <PillButton label="Entrar" onPress={handleLogin} loading={loading} style={styles.primaryButton} />
+            <PillButton
+              label={t('login.submitButton')}
+              onPress={handleLogin}
+              loading={loading}
+              style={styles.primaryButton}
+            />
             <Text style={styles.forgotLink} onPress={() => navigation.navigate('ForgotPassword')}>
-              Olvidé mi contraseña
+              {t('login.forgotLink')}
             </Text>
           </GlassCard>
 
           <View style={styles.footer}>
-            <Text style={styles.footerText}>¿No tienes cuenta?</Text>
+            <Text style={styles.footerText}>{t('login.noAccount')}</Text>
             <Text style={styles.link} onPress={() => navigation.navigate('Register')}>
-              Regístrate
+              {t('login.registerLink')}
             </Text>
           </View>
         </ScrollView>

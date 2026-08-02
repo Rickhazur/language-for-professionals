@@ -7,17 +7,19 @@ import { PillButton } from '../../components/common/PillButton';
 import { GradientBackground } from '../../components/common/GradientBackground';
 import { GlassCard } from '../../components/common/GlassCard';
 import { supabase } from '../../config/supabase';
+import { useLanguage } from '../../hooks/useLanguage';
 import { spacing, vibrant } from '../../constants/theme';
 
 type Props = NativeStackScreenProps<AuthStackParamList, 'ForgotPassword'>;
 
 export function ForgotPasswordScreen({ navigation }: Props) {
+  const { t } = useLanguage();
   const [email, setEmail] = useState('');
   const [loading, setLoading] = useState(false);
 
   const handleReset = async () => {
     if (!email) {
-      Alert.alert('Falta el correo', 'Ingresa tu correo electrónico.');
+      Alert.alert(t('forgotPassword.alertMissingTitle'), t('forgotPassword.alertMissingMessage'));
       return;
     }
     setLoading(true);
@@ -27,28 +29,28 @@ export function ForgotPasswordScreen({ navigation }: Props) {
       Alert.alert('Error', error.message);
       return;
     }
-    Alert.alert('Correo enviado', 'Revisa tu bandeja para restablecer tu contraseña.');
+    Alert.alert(t('forgotPassword.alertSentTitle'), t('forgotPassword.alertSentMessage'));
     navigation.goBack();
   };
 
   return (
     <GradientBackground>
-      <Text style={styles.title}>Recuperar contraseña</Text>
-      <Text style={styles.subtitle}>Te enviaremos un enlace a tu correo</Text>
+      <Text style={styles.title}>{t('forgotPassword.title')}</Text>
+      <Text style={styles.subtitle}>{t('forgotPassword.subtitle')}</Text>
 
       <GlassCard style={styles.card}>
         <Input
-          placeholder="Correo electrónico"
+          placeholder={t('common.emailPlaceholder')}
           keyboardType="email-address"
           value={email}
           onChangeText={setEmail}
           autoCapitalize="none"
         />
-        <PillButton label="Enviar enlace" onPress={handleReset} loading={loading} style={styles.sendButton} />
+        <PillButton label={t('forgotPassword.sendButton')} onPress={handleReset} loading={loading} style={styles.sendButton} />
       </GlassCard>
 
       <Text style={styles.backLink} onPress={() => navigation.goBack()}>
-        ← Volver
+        {t('forgotPassword.backLink')}
       </Text>
     </GradientBackground>
   );

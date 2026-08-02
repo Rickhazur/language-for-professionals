@@ -7,20 +7,22 @@ import { LanguageCard } from '../../components/common/LanguageCard';
 import { OnboardingProgress } from '../../components/common/OnboardingProgress';
 import { Button } from '../../components/common/Button';
 import { LanguageCode } from '../../types/database';
+import { useLanguage } from '../../hooks/useLanguage';
 import { colors, spacing } from '../../constants/theme';
 
 type Props = NativeStackScreenProps<OnboardingStackParamList, 'LanguageSelection'>;
 
-const LANGUAGES: { code: LanguageCode; flag: string; label: string }[] = [
-  { code: 'en', flag: '🇺🇸', label: 'Inglés' },
-  { code: 'es', flag: '🇪🇸', label: 'Español' },
-];
-
 const otherLanguage = (code: LanguageCode): LanguageCode => (code === 'en' ? 'es' : 'en');
 
 export function LanguageSelectionScreen({ navigation }: Props) {
+  const { t } = useLanguage();
   const [targetLanguage, setTargetLanguage] = useState<LanguageCode | null>(null);
   const [nativeLanguage, setNativeLanguage] = useState<LanguageCode | null>(null);
+
+  const LANGUAGES: { code: LanguageCode; flag: string; label: string }[] = [
+    { code: 'en', flag: '🇺🇸', label: t('common.langEnglish') },
+    { code: 'es', flag: '🇪🇸', label: t('common.langSpanish') },
+  ];
 
   const handleSelectTarget = (code: LanguageCode) => {
     setTargetLanguage(code);
@@ -38,7 +40,7 @@ export function LanguageSelectionScreen({ navigation }: Props) {
     <SafeAreaView style={styles.container}>
       <OnboardingProgress step={1} total={2} />
 
-      <Text style={styles.question}>¿Qué idioma quieres aprender?</Text>
+      <Text style={styles.question}>{t('onboarding.targetQuestion')}</Text>
       <View style={styles.row}>
         {LANGUAGES.map((lang) => (
           <LanguageCard
@@ -51,7 +53,7 @@ export function LanguageSelectionScreen({ navigation }: Props) {
         ))}
       </View>
 
-      <Text style={[styles.question, styles.secondQuestion]}>¿Cuál es tu idioma nativo?</Text>
+      <Text style={[styles.question, styles.secondQuestion]}>{t('onboarding.nativeQuestion')}</Text>
       <View style={styles.row}>
         {LANGUAGES.map((lang) => (
           <LanguageCard
@@ -65,7 +67,7 @@ export function LanguageSelectionScreen({ navigation }: Props) {
       </View>
 
       <Button
-        label="Continuar"
+        label={t('onboarding.continueButton')}
         disabled={!canContinue}
         style={styles.continueButton}
         onPress={() =>
