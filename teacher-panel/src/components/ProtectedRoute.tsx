@@ -9,7 +9,7 @@ export function ProtectedRoute({ children }: { children: ReactNode }) {
     return <div className="centered-page">Cargando…</div>;
   }
 
-  if (!session || profile?.role !== 'teacher') {
+  if (!session || profile?.role !== 'teacher' || !profile.is_approved) {
     return <Navigate to="/login" replace />;
   }
 

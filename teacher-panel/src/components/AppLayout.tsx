@@ -18,6 +18,9 @@ export function AppLayout({ children }: { children: ReactNode }) {
           LinguaPro — Panel del profesor
         </Link>
         <div className="app-header-right">
+          <Link to="/pending" className="app-nav-link">
+            Solicitudes pendientes
+          </Link>
           {profile?.full_name || profile?.email ? (
             <span className="app-user">{profile.full_name || profile.email}</span>
           ) : null}

@@ -7,6 +7,9 @@ export interface Profile {
   full_name: string | null;
   role: 'student' | 'teacher';
   avatar_url: string | null;
+  is_approved: boolean;
+  approved_at: string | null;
+  created_at: string;
 }
 
 export interface StudentProfile {

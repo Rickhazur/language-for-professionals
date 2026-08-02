@@ -59,6 +59,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       return { error: 'Esta cuenta no tiene un rol de profesor.' };
     }
 
+    if (!profileRow.is_approved) {
+      await supabase.auth.signOut();
+      return { error: 'Tu cuenta de profesor todavía está pendiente de aprobación.' };
+    }
+
     return { error: null };
   };
 

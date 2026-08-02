@@ -4,6 +4,7 @@ import { ProtectedRoute } from './components/ProtectedRoute';
 import { LoginPage } from './pages/LoginPage';
 import { StudentsListPage } from './pages/StudentsListPage';
 import { StudentDetailPage } from './pages/StudentDetailPage';
+import { PendingApprovalsPage } from './pages/PendingApprovalsPage';
 
 export default function App() {
   return (
@@ -24,6 +25,14 @@ export default function App() {
             element={
               <ProtectedRoute>
                 <StudentDetailPage />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/pending"
+            element={
+              <ProtectedRoute>
+                <PendingApprovalsPage />
               </ProtectedRoute>
             }
           />

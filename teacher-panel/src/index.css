@@ -59,6 +59,16 @@ a {
   font-size: 14px;
 }
 
+.app-nav-link {
+  color: var(--color-primary);
+  font-size: 14px;
+  font-weight: 600;
+  text-decoration: none;
+}
+.app-nav-link:hover {
+  text-decoration: underline;
+}
+
 .app-main {
   flex: 1;
   padding: 24px;

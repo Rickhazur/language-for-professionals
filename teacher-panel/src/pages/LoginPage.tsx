@@ -10,7 +10,7 @@ export function LoginPage() {
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
 
-  if (session && profile?.role === 'teacher') {
+  if (session && profile?.role === 'teacher' && profile.is_approved) {
     return <Navigate to="/" replace />;
   }
 

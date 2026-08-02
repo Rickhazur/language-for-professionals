@@ -6,6 +6,8 @@ export interface Profile {
   full_name: string | null;
   role: UserRole;
   avatar_url: string | null;
+  is_approved: boolean;
+  approved_at: string | null;
   created_at: string;
   updated_at: string;
 }

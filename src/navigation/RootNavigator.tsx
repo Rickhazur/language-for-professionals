@@ -5,6 +5,7 @@ import { useAuth } from '../hooks/useAuth';
 import { AuthStack } from './AuthStack';
 import { OnboardingStack } from './OnboardingStack';
 import { AppStack } from './AppStack';
+import { PendingApprovalScreen } from '../screens/auth/PendingApprovalScreen';
 import { colors } from '../constants/theme';
 
 export function RootNavigator() {
@@ -22,6 +23,14 @@ export function RootNavigator() {
     return (
       <NavigationContainer>
         <AuthStack />
+      </NavigationContainer>
+    );
+  }
+
+  if (profile && !profile.is_approved) {
+    return (
+      <NavigationContainer>
+        <PendingApprovalScreen />
       </NavigationContainer>
     );
   }
