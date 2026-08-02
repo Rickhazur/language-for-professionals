@@ -6,6 +6,7 @@ import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { PracticeStackParamList } from '../../navigation/types';
 import { Button } from '../../components/common/Button';
 import { ProgressBar } from '../../components/common/ProgressBar';
+import { LinkedSentence } from '../../components/common/LinkedSentence';
 import { useAuth } from '../../hooks/useAuth';
 import { supabase } from '../../config/supabase';
 import { playAudioUri } from '../../lib/audio';
@@ -293,7 +294,10 @@ export function ShadowingScreen({ navigation }: Props) {
       <View style={styles.content}>
         <View style={styles.sentenceCard}>
           <Text style={styles.termLabel}>Vocabulario: {currentItem.term}</Text>
-          <Text style={styles.sentence}>{currentItem.sentence}</Text>
+          <LinkedSentence text={currentItem.sentence} language={language} style={styles.sentence} />
+          {language === 'en' && (
+            <Text style={styles.linkingHint}>💡 ‿ muestra dónde se conectan los sonidos al hablar</Text>
+          )}
         </View>
 
         <Button
@@ -410,6 +414,12 @@ const styles = StyleSheet.create({
     fontSize: 22,
     fontWeight: '700',
     color: colors.text,
+  },
+  linkingHint: {
+    fontSize: 12,
+    color: colors.textMuted,
+    marginTop: spacing.sm,
+    fontStyle: 'italic',
   },
   actionButton: {
     marginBottom: spacing.md,

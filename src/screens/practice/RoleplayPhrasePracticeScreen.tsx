@@ -5,6 +5,7 @@ import { Audio } from 'expo-av';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { PracticeStackParamList } from '../../navigation/types';
 import { Button } from '../../components/common/Button';
+import { LinkedSentence } from '../../components/common/LinkedSentence';
 import { useAuth } from '../../hooks/useAuth';
 import { supabase } from '../../config/supabase';
 import { playAudioUri } from '../../lib/audio';
@@ -132,9 +133,12 @@ export function RoleplayPhrasePracticeScreen({ route, navigation }: Props) {
     <SafeAreaView style={styles.container}>
       <View style={styles.content}>
         <View style={styles.phraseCard}>
-          <Text style={styles.phrase}>{phrase.phrase}</Text>
+          <LinkedSentence text={phrase.phrase} language={language} style={styles.phrase} />
           <Text style={styles.translation}>{phrase.translation}</Text>
           <Text style={styles.tip}>💡 {phrase.tip}</Text>
+          {language === 'en' && (
+            <Text style={styles.linkingHint}>‿ muestra dónde se conectan los sonidos al hablar</Text>
+          )}
         </View>
 
         <Button
@@ -206,6 +210,12 @@ const styles = StyleSheet.create({
   tip: {
     fontSize: 13,
     color: colors.primary,
+    marginTop: spacing.sm,
+    fontStyle: 'italic',
+  },
+  linkingHint: {
+    fontSize: 12,
+    color: colors.textMuted,
     marginTop: spacing.sm,
     fontStyle: 'italic',
   },
