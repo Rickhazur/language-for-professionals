@@ -17,6 +17,14 @@ import { checkQuota, logUsage } from '../_shared/quota.ts';
 const MAX_MESSAGE_LENGTH = 1000;
 const MAX_TURNS = 8; // pares pregunta/respuesta antes de forzar a terminar
 const POINTS_PER_CONVERSATION = 15;
+// Cuántos mensajes previos (no todo el historial) se reenvían a la IA en
+// cada respuesta. Sin este límite, el costo de cada turno crece con el
+// historial completo de la conversación (turno 8 reenvía los 7 anteriores).
+// El system prompt ya repite el escenario completo en cada llamada, así que
+// perder los primeros intercambios no rompe el contexto — 4 intercambios
+// recientes (8 mensajes) es de sobra para mantener coherencia en una
+// conversación de máximo 8 turnos.
+const HISTORY_WINDOW_MESSAGES = 8;
 
 const LANGUAGE_NAMES: Record<string, string> = { en: 'inglés', es: 'español' };
 
@@ -270,9 +278,10 @@ Deno.serve(async (req: Request) => {
         wrappingUp: upcomingTurnsUsed >= MAX_TURNS - 1,
       });
 
+      const recentMessages = priorMessages.slice(-HISTORY_WINDOW_MESSAGES);
       const chatMessages: ChatMessage[] = [
         { role: 'system', content: systemPrompt },
-        ...priorMessages.map((m: { role: string; content: string }) => ({
+        ...recentMessages.map((m: { role: string; content: string }) => ({
           role: m.role as 'user' | 'assistant',
           content: m.content,
         })),
