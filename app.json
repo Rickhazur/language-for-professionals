@@ -1,0 +1,34 @@
+{
+  "expo": {
+    "name": "LinguaPro",
+    "slug": "linguapro",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "userInterfaceStyle": "automatic",
+    "splash": {
+      "backgroundColor": "#ffffff"
+    },
+    "assetBundlePatterns": ["**/*"],
+    "ios": {
+      "supportsTablet": true,
+      "bundleIdentifier": "com.linguapro.app"
+    },
+    "android": {
+      "package": "com.linguapro.app",
+      "adaptiveIcon": {
+        "backgroundColor": "#ffffff"
+      }
+    },
+    "web": {
+      "bundler": "metro"
+    },
+    "plugins": [
+      [
+        "expo-av",
+        {
+          "microphonePermission": "Permite el acceso al micrófono para grabar tu pronunciación durante la evaluación de nivel."
+        }
+      ]
+    ]
+  }
+}
