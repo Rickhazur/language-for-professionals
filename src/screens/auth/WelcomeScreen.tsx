@@ -60,7 +60,15 @@ export function WelcomeScreen({ navigation }: Props) {
           <View style={styles.orbitRing} />
           <View style={styles.orbitRingInner} />
           <View style={styles.centerCircle}>
-            <Text style={styles.centerFlags}>🇺🇸 ⇄ 🇪🇸</Text>
+            <View style={styles.centerBadges}>
+              <View style={styles.centerBadge}>
+                <Text style={styles.centerBadgeText}>EN</Text>
+              </View>
+              <Ionicons name="swap-horizontal" size={14} color={colors.textMuted} />
+              <View style={[styles.centerBadge, styles.centerBadgeAlt]}>
+                <Text style={styles.centerBadgeText}>ES</Text>
+              </View>
+            </View>
             <Text style={styles.centerLabel}>{t('welcome.centerLabel')}</Text>
             <Text style={styles.centerSub}>{t('welcome.centerSub')}</Text>
           </View>
@@ -225,9 +233,25 @@ const styles = StyleSheet.create({
       default: { boxShadow: '0 8px 24px rgba(59, 7, 100, 0.16)' },
     }),
   },
-  centerFlags: {
-    fontSize: 26,
+  centerBadges: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
     marginBottom: spacing.xs,
+  },
+  centerBadge: {
+    backgroundColor: '#DBEAFE',
+    borderRadius: 999,
+    paddingVertical: 3,
+    paddingHorizontal: 9,
+  },
+  centerBadgeAlt: {
+    backgroundColor: '#FFE4E6',
+  },
+  centerBadgeText: {
+    fontSize: 12,
+    fontWeight: '800',
+    color: colors.text,
   },
   centerLabel: {
     fontSize: 14,

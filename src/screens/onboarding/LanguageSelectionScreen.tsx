@@ -20,8 +20,8 @@ export function LanguageSelectionScreen({ navigation }: Props) {
   const [nativeLanguage, setNativeLanguage] = useState<LanguageCode | null>(null);
 
   const LANGUAGES: { code: LanguageCode; flag: string; label: string }[] = [
-    { code: 'en', flag: '🇺🇸', label: t('common.langEnglish') },
-    { code: 'es', flag: '🇪🇸', label: t('common.langSpanish') },
+    { code: 'en', flag: 'EN', label: t('common.langEnglish') },
+    { code: 'es', flag: 'ES', label: t('common.langSpanish') },
   ];
 
   const handleSelectTarget = (code: LanguageCode) => {
