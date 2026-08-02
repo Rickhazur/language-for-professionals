@@ -4,6 +4,7 @@ import { AppLayout } from '../components/AppLayout';
 import { useAuth } from '../hooks/useAuth';
 import { supabase } from '../config/supabase';
 import { scoreBackground, scoreColor } from '../lib/scoreColor';
+import { statusForBox, statusBackground, statusColor, STATUS_LABELS } from '../lib/vocabularyStatus';
 import {
   Profile,
   StudentProfile,
@@ -11,6 +12,8 @@ import {
   ShadowingAttempt,
   StudentAiSummary,
   TeacherNote,
+  CoursePlanVocabularyTerm,
+  StudentVocabularyProgress,
 } from '../types/database';
 
 const LANGUAGE_LABELS: Record<string, string> = { en: 'Inglés', es: 'Español' };
@@ -45,6 +48,8 @@ export function StudentDetailPage() {
   const [weekly, setWeekly] = useState<WeeklyProgress | null>(null);
   const [summary, setSummary] = useState<StudentAiSummary | null>(null);
   const [notes, setNotes] = useState<TeacherNote[]>([]);
+  const [vocabulary, setVocabulary] = useState<CoursePlanVocabularyTerm[]>([]);
+  const [vocabularyProgress, setVocabularyProgress] = useState<StudentVocabularyProgress[]>([]);
   const [newNote, setNewNote] = useState('');
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -124,6 +129,27 @@ export function StudentDetailPage() {
           ? Math.round((weekAttemptScores.reduce((a, b) => a + b, 0) / weekAttemptScores.length) * 10) / 10
           : null,
     });
+
+    const { data: activePlan } = await supabase
+      .from('course_plans')
+      .select('id')
+      .eq('student_id', studentId)
+      .eq('status', 'active')
+      .order('generated_at', { ascending: false })
+      .limit(1)
+      .maybeSingle();
+
+    if (activePlan) {
+      const [vocabRes, progressRes] = await Promise.all([
+        supabase.from('course_plan_vocabulary').select('*').eq('course_plan_id', activePlan.id),
+        supabase.from('student_vocabulary_progress').select('*').eq('student_id', studentId),
+      ]);
+      setVocabulary(vocabRes.data ?? []);
+      setVocabularyProgress(progressRes.data ?? []);
+    } else {
+      setVocabulary([]);
+      setVocabularyProgress([]);
+    }
 
     setLoading(false);
   }, [studentId, session]);
@@ -250,6 +276,65 @@ export function StudentDetailPage() {
               </div>
             ))}
           </div>
+        )}
+      </section>
+
+      <section className="panel">
+        <h2 className="panel-title">Vocabulario</h2>
+        {vocabulary.length === 0 ? (
+          <p className="empty-state">Este estudiante todavía no tiene un plan de curso con vocabulario generado.</p>
+        ) : (
+          <>
+            {(() => {
+              const progressByTermId = new Map(vocabularyProgress.map((p) => [p.vocabulary_id, p]));
+              const mastered = vocabulary.filter((t) => {
+                const p = progressByTermId.get(t.id);
+                return p && statusForBox(p.box, true) === 'mastered';
+              }).length;
+              return (
+                <p className="panel-note">
+                  {mastered} de {vocabulary.length} términos dominados.
+                </p>
+              );
+            })()}
+            <table className="table">
+              <thead>
+                <tr>
+                  <th>Término</th>
+                  <th>Traducción</th>
+                  <th>Estado</th>
+                  <th>Aciertos/Errores</th>
+                  <th>Último repaso</th>
+                </tr>
+              </thead>
+              <tbody>
+                {vocabulary.map((term) => {
+                  const progress = vocabularyProgress.find((p) => p.vocabulary_id === term.id);
+                  const status = statusForBox(progress?.box ?? 1, progress !== undefined);
+                  return (
+                    <tr key={term.id}>
+                      <td>{term.term}</td>
+                      <td>{term.translation}</td>
+                      <td>
+                        <span
+                          className="score-chip"
+                          style={{ backgroundColor: statusBackground(status), color: statusColor(status) }}
+                        >
+                          {STATUS_LABELS[status]}
+                        </span>
+                      </td>
+                      <td>
+                        {progress ? `${progress.correct_count} / ${progress.incorrect_count}` : '—'}
+                      </td>
+                      <td>
+                        {progress?.last_reviewed_at ? new Date(progress.last_reviewed_at).toLocaleDateString('es') : '—'}
+                      </td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
+          </>
         )}
       </section>
 

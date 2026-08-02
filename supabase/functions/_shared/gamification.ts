@@ -31,6 +31,12 @@ const POINTS_MILESTONES = [
 const MASTERY_WINDOW = 5;
 const MASTERY_THRESHOLD = 90;
 
+const VOCABULARY_MILESTONES = [
+  { count: 25, title: '25 palabras dominadas', description: 'Dominaste 25 términos de vocabulario.', icon: '📚' },
+  { count: 50, title: '50 palabras dominadas', description: 'Dominaste 50 términos de vocabulario.', icon: '📚' },
+  { count: 100, title: '100 palabras dominadas', description: 'Dominaste 100 términos de vocabulario, ¡impresionante!', icon: '🎓' },
+];
+
 async function awardBadgeIfNew(admin: AdminClient, studentId: string, award: BadgeAward): Promise<BadgeAward | null> {
   const { data, error } = await admin
     .from('student_badges')
@@ -150,4 +156,28 @@ export async function checkPhonemeMastery(
     description: `Tus últimos ${MASTERY_WINDOW} intentos con /${phoneme}/ superaron ${MASTERY_THRESHOLD} puntos.`,
     icon: '🎯',
   });
+}
+
+// Insignias por hitos de vocabulario dominado (caja 5 del Leitner). Se
+// llama después de cada repaso con el conteo total actualizado de términos
+// en caja 5 para ese estudiante.
+export async function checkVocabularyMilestones(
+  admin: AdminClient,
+  studentId: string,
+  masteredCount: number
+): Promise<BadgeAward[]> {
+  const newBadges: BadgeAward[] = [];
+  for (const milestone of VOCABULARY_MILESTONES) {
+    if (masteredCount >= milestone.count) {
+      const badge = await awardBadgeIfNew(admin, studentId, {
+        badge_type: 'vocabulary_mastery',
+        badge_key: `vocab_${milestone.count}`,
+        title: milestone.title,
+        description: milestone.description,
+        icon: milestone.icon,
+      });
+      if (badge) newBadges.push(badge);
+    }
+  }
+  return newBadges;
 }

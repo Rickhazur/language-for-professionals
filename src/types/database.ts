@@ -156,7 +156,7 @@ export interface StudentGamification {
   updated_at: string;
 }
 
-export type BadgeType = 'streak' | 'points' | 'phoneme_mastery';
+export type BadgeType = 'streak' | 'points' | 'phoneme_mastery' | 'vocabulary_mastery';
 
 export interface StudentBadge {
   id: string;
@@ -250,6 +250,18 @@ export interface CoursePlanVocabularyTerm {
   term: string;
   translation: string;
   example_sentence: string | null;
+  created_at: string;
+}
+
+export interface StudentVocabularyProgress {
+  id: string;
+  student_id: string;
+  vocabulary_id: string;
+  box: number;
+  correct_count: number;
+  incorrect_count: number;
+  last_reviewed_at: string | null;
+  next_review_at: string;
   created_at: string;
 }
 

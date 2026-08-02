@@ -29,6 +29,8 @@ export type MainTabsParamList = {
 export type ProgressStackParamList = {
   CourseOverview: undefined;
   Lesson: { item: CoursePlanItem; moduleNumber: number; totalModules: number };
+  VocabularyBank: undefined;
+  VocabularyReview: undefined;
 };
 
 export type PracticeStackParamList = {

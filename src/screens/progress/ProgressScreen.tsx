@@ -5,6 +5,7 @@ import { useFocusEffect } from '@react-navigation/native';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { ProgressStackParamList } from '../../navigation/types';
 import { Button } from '../../components/common/Button';
+import { PillButton } from '../../components/common/PillButton';
 import { ProgressBar } from '../../components/common/ProgressBar';
 import { useAuth } from '../../hooks/useAuth';
 import { supabase } from '../../config/supabase';
@@ -225,8 +226,15 @@ export function ProgressScreen({ navigation }: Props) {
               </View>
             ))}
 
-            <Text style={styles.sectionTitle}>Vocabulario profesional</Text>
-            {data.vocabulary.map((term) => (
+            <View style={styles.vocabHeaderRow}>
+              <Text style={styles.sectionTitle}>Vocabulario profesional</Text>
+              <PillButton
+                label="Repasar"
+                onPress={() => navigation.navigate('VocabularyBank')}
+                style={styles.vocabReviewButton}
+              />
+            </View>
+            {data.vocabulary.slice(0, 5).map((term) => (
               <View key={term.id} style={styles.vocabRow}>
                 <Text style={styles.vocabTerm}>
                   {term.term} <Text style={styles.vocabTranslation}>— {term.translation}</Text>
@@ -234,6 +242,11 @@ export function ProgressScreen({ navigation }: Props) {
                 {term.example_sentence && <Text style={styles.vocabExample}>{term.example_sentence}</Text>}
               </View>
             ))}
+            {data.vocabulary.length > 5 && (
+              <Text style={styles.vocabMore} onPress={() => navigation.navigate('VocabularyBank')}>
+                Ver los {data.vocabulary.length} términos →
+              </Text>
+            )}
 
             <Text style={styles.sectionTitle}>Escenarios de roleplay</Text>
             {data.roleplays.map((scenario) => (
@@ -373,10 +386,26 @@ const styles = StyleSheet.create({
     color: colors.textMuted,
     marginTop: spacing.xs,
   },
+  vocabHeaderRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: spacing.sm,
+  },
+  vocabReviewButton: {
+    paddingVertical: spacing.xs,
+    paddingHorizontal: spacing.md,
+  },
   vocabRow: {
     paddingVertical: spacing.sm,
     borderBottomWidth: 1,
     borderBottomColor: colors.border,
+  },
+  vocabMore: {
+    fontSize: 14,
+    fontWeight: '600',
+    color: colors.primary,
+    marginTop: spacing.sm,
   },
   vocabTerm: {
     fontSize: 16,

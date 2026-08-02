@@ -72,6 +72,27 @@ export interface StudentAiSummary {
   generated_at: string;
 }
 
+export interface CoursePlanVocabularyTerm {
+  id: string;
+  course_plan_id: string;
+  term: string;
+  translation: string;
+  example_sentence: string | null;
+  created_at: string;
+}
+
+export interface StudentVocabularyProgress {
+  id: string;
+  student_id: string;
+  vocabulary_id: string;
+  box: number;
+  correct_count: number;
+  incorrect_count: number;
+  last_reviewed_at: string | null;
+  next_review_at: string;
+  created_at: string;
+}
+
 export interface TeacherNote {
   id: string;
   teacher_id: string;
