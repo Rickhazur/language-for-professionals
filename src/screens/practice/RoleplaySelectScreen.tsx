@@ -84,7 +84,13 @@ export function RoleplaySelectScreen({ navigation }: Props) {
           <Pressable
             key={s.id}
             style={styles.card}
-            onPress={() => navigation.navigate('RoleplayConversation', { roleplayId: s.id, title: s.title })}
+            onPress={() =>
+              navigation.navigate('RoleplayConversation', {
+                roleplayId: s.id,
+                title: s.title,
+                relatedObjective: s.related_objective,
+              })
+            }
           >
             <View style={styles.cardBadges}>
               <Text style={styles.badge}>{OBJECTIVE_LABELS[s.related_objective] ?? s.related_objective}</Text>

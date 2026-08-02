@@ -36,7 +36,7 @@ function extractErrorMessage(error: unknown, fallback: string): Promise<string> 
 }
 
 export function RoleplayConversationScreen({ route, navigation }: Props) {
-  const { roleplayId, title } = route.params;
+  const { roleplayId, title, relatedObjective } = route.params;
   const [conversationId, setConversationId] = useState<string | null>(null);
   const [messages, setMessages] = useState<RoleplayMessage[]>([]);
   const [loading, setLoading] = useState(true);
@@ -130,6 +130,12 @@ export function RoleplayConversationScreen({ route, navigation }: Props) {
       <SafeAreaView style={styles.flex}>
         <View style={styles.header}>
           <Text style={styles.headerTitle}>{title}</Text>
+          <Text
+            style={styles.helpLink}
+            onPress={() => navigation.navigate('RoleplayPhraseBank', { relatedObjective })}
+          >
+            💡 ¿No sabes qué decir?
+          </Text>
         </View>
 
         <ScrollView
@@ -209,6 +215,12 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: '700',
     color: colors.text,
+  },
+  helpLink: {
+    fontSize: 13,
+    fontWeight: '600',
+    color: colors.primary,
+    marginTop: spacing.xs,
   },
   messagesContent: {
     padding: spacing.md,

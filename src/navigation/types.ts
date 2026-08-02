@@ -1,11 +1,13 @@
 import {
   CoursePlanItem,
   LanguageCode,
+  LearningObjective,
   LevelAssessment,
   ShadowingAttempt,
   ShadowingWordWithPhonemes,
   StudentBadge,
 } from '../types/database';
+import { RoleplayPhrase } from '../data/roleplayPhrases';
 
 // Reutilizado por PracticeStack y ProgressStack: PronunciationFeedbackScreen
 // se monta en ambos (práctica libre de shadowing y ejercicios de speaking
@@ -53,8 +55,10 @@ export type PracticeStackParamList = {
   Shadowing: undefined;
   PronunciationFeedback: PronunciationFeedbackParams;
   RoleplaySelect: undefined;
-  RoleplayConversation: { roleplayId: string; title: string };
+  RoleplayConversation: { roleplayId: string; title: string; relatedObjective: LearningObjective };
   RoleplayFeedback: { feedback: string; title: string };
+  RoleplayPhraseBank: { relatedObjective: LearningObjective };
+  RoleplayPhrasePractice: { phrase: RoleplayPhrase };
 };
 
 export type AppStackParamList = {
