@@ -21,6 +21,13 @@ import { createClient } from 'npm:@supabase/supabase-js@2';
 const CEFR_LEVELS = ['A1', 'A2', 'B1', 'B2', 'C1', 'C2'];
 const SKILLS = ['listening', 'speaking', 'reading', 'writing', 'vocabulary', 'grammar'];
 const OBJECTIVES = ['meetings', 'emails', 'negotiation', 'presentations', 'customer_service', 'travel'];
+// Máximo de veces que un estudiante puede generar un plan de curso por
+// idioma: la primera vez (onboarding) + una "regeneración" gratis. Es la
+// llamada a IA más grande de la app, así que este límite protege el costo
+// sin dejar a nadie atrapado con un primer plan malo. Se cuenta directo
+// sobre course_plans (cada generación, incluyendo las archivadas, inserta
+// una fila nueva) — sin tabla nueva.
+const MAX_COURSE_PLAN_GENERATIONS = 2;
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -222,6 +229,22 @@ Deno.serve(async (req: Request) => {
       return jsonResponse(
         { error: 'Completa ocupación, industria y objetivos en tu perfil antes de generar un plan.' },
         400
+      );
+    }
+
+    const { count: generationCount } = await admin
+      .from('course_plans')
+      .select('id', { count: 'exact', head: true })
+      .eq('student_id', user.id)
+      .eq('language', studentProfile.target_language);
+
+    if ((generationCount ?? 0) >= MAX_COURSE_PLAN_GENERATIONS) {
+      return jsonResponse(
+        {
+          error:
+            'Ya generaste tu plan de curso el máximo de veces permitido. Habla con tu profesor si necesitas uno nuevo.',
+        },
+        403
       );
     }
 
