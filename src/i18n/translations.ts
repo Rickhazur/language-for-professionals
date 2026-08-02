@@ -127,6 +127,17 @@ export const translations = {
     'onboarding.objective.presentations': 'Presentaciones',
     'onboarding.objective.customerService': 'Atención a clientes',
     'onboarding.objective.travel': 'Viajes',
+
+    // AssessmentResultScreen — oferta post-examen
+    'assessmentOffer.title': '🤖 + 👩‍🏫 La combinación que realmente funciona',
+    'assessmentOffer.body':
+      'La IA te da práctica ilimitada, retroalimentación al instante y cero pena de equivocarte — disponible cuando tú quieras. Pero ningún algoritmo reemplaza a un profesor real: alguien que corrige lo que la IA no capta, te empuja a seguir cuando te estancas, y te ayuda a sonar como un profesional de verdad, no solo alguien que aprobó un examen.',
+    'assessmentOffer.offerTitle': '🎁 Tu clase de bienvenida es gratis',
+    'assessmentOffer.offerBody':
+      'Empieza el programa completo con tu primera clase en vivo sin costo — así conoces a tu profesor y armamos juntos tu plan antes de que decidas cualquier cosa.',
+    'assessmentOffer.ctaButton': '💬 Quiero mi clase gratis',
+    'assessmentOffer.whatsappMessage':
+      '¡Hola! Acabo de terminar mi examen de nivelación en LinguaPro. Mi nivel es {level} en {language}. Quiero mi primera clase gratis 🎉',
   },
   en: {
     'common.emailPlaceholder': 'Email',
@@ -240,6 +251,17 @@ export const translations = {
     'onboarding.objective.presentations': 'Presentations',
     'onboarding.objective.customerService': 'Customer service',
     'onboarding.objective.travel': 'Travel',
+
+    // AssessmentResultScreen — post-test offer
+    'assessmentOffer.title': '🤖 + 👩‍🏫 The combination that actually works',
+    'assessmentOffer.body':
+      "AI gives you unlimited practice, instant feedback, and zero fear of getting it wrong — available whenever you want. But no algorithm replaces a real teacher: someone who catches what AI misses, pushes you forward when you get stuck, and helps you sound like a real professional, not just someone who passed a test.",
+    'assessmentOffer.offerTitle': '🎁 Your welcome class is free',
+    'assessmentOffer.offerBody':
+      "Start the full program with your first live class at no cost — meet your teacher and build your plan together before you decide anything.",
+    'assessmentOffer.ctaButton': '💬 I want my free class',
+    'assessmentOffer.whatsappMessage':
+      "Hi! I just finished my placement test on LinguaPro. My level is {level} in {language}. I'd like my free first class 🎉",
   },
 } as const;
 

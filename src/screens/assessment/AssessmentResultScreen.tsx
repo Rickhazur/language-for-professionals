@@ -1,9 +1,10 @@
 import React from 'react';
-import { View, Text, StyleSheet } from 'react-native';
+import { View, Text, StyleSheet, Linking, Alert } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { AssessmentStackParamList } from '../../navigation/types';
 import { Button } from '../../components/common/Button';
+import { useLanguage } from '../../hooks/useLanguage';
 import { colors, spacing, gradients, cardShadow } from '../../constants/theme';
 import { LinearGradient } from 'expo-linear-gradient';
 
@@ -15,8 +16,29 @@ const SKILL_ROWS: { key: 'grammar_score' | 'vocabulary_score' | 'speaking_score'
   { key: 'speaking_score', label: 'Pronunciación (simulado)' },
 ];
 
+// Número del profesor para el botón de contacto de la oferta post-examen —
+// mientras no exista pago dentro de la app, el cierre de venta es manual.
+const TEACHER_WHATSAPP_NUMBER = '573166267846';
+
 export function AssessmentResultScreen({ route, navigation }: Props) {
   const { assessment } = route.params;
+  const { t } = useLanguage();
+
+  const handleClaimOffer = async () => {
+    const languageLabel = assessment.language === 'en' ? t('common.langEnglish') : t('common.langSpanish');
+    const message = t('assessmentOffer.whatsappMessage', {
+      level: assessment.overall_level,
+      language: languageLabel,
+    });
+    const url = `https://wa.me/${TEACHER_WHATSAPP_NUMBER}?text=${encodeURIComponent(message)}`;
+
+    const canOpen = await Linking.canOpenURL(url);
+    if (!canOpen) {
+      Alert.alert('Error', 'No se pudo abrir WhatsApp.');
+      return;
+    }
+    Linking.openURL(url);
+  };
 
   return (
     <SafeAreaView style={styles.container}>
@@ -42,9 +64,21 @@ export function AssessmentResultScreen({ route, navigation }: Props) {
           El puntaje de pronunciación es simulado por ahora. Pronto lo calcularemos a partir del
           análisis real de tu grabación.
         </Text>
+
+        <View style={styles.offerCard}>
+          <Text style={styles.offerSectionTitle}>{t('assessmentOffer.title')}</Text>
+          <Text style={styles.offerBody}>{t('assessmentOffer.body')}</Text>
+
+          <View style={styles.offerHighlight}>
+            <Text style={styles.offerHighlightTitle}>{t('assessmentOffer.offerTitle')}</Text>
+            <Text style={styles.offerHighlightBody}>{t('assessmentOffer.offerBody')}</Text>
+          </View>
+
+          <Button label={t('assessmentOffer.ctaButton')} onPress={handleClaimOffer} style={styles.offerButton} />
+        </View>
       </View>
 
-      <Button label="Ir a mi progreso" onPress={() => navigation.getParent()?.goBack()} style={styles.button} />
+      <Button label="Ir a mi progreso" variant="secondary" onPress={() => navigation.getParent()?.goBack()} style={styles.button} />
     </SafeAreaView>
   );
 }
@@ -108,6 +142,50 @@ const styles = StyleSheet.create({
     color: colors.textMuted,
     marginTop: spacing.xl,
     textAlign: 'center',
+  },
+  offerCard: {
+    width: '100%',
+    backgroundColor: '#fff',
+    borderRadius: 20,
+    padding: spacing.lg,
+    marginTop: spacing.xl,
+    ...cardShadow,
+  },
+  offerSectionTitle: {
+    fontSize: 17,
+    fontWeight: '800',
+    color: colors.text,
+    marginBottom: spacing.sm,
+    textAlign: 'center',
+  },
+  offerBody: {
+    fontSize: 14,
+    color: colors.textMuted,
+    lineHeight: 20,
+    textAlign: 'center',
+  },
+  offerHighlight: {
+    backgroundColor: '#F5F3FF',
+    borderRadius: 16,
+    padding: spacing.md,
+    marginTop: spacing.lg,
+  },
+  offerHighlightTitle: {
+    fontSize: 15,
+    fontWeight: '800',
+    color: colors.text,
+    marginBottom: spacing.xs,
+    textAlign: 'center',
+  },
+  offerHighlightBody: {
+    fontSize: 13,
+    color: colors.textMuted,
+    lineHeight: 19,
+    textAlign: 'center',
+  },
+  offerButton: {
+    marginTop: spacing.lg,
+    marginBottom: 0,
   },
   button: {
     marginHorizontal: spacing.lg,
