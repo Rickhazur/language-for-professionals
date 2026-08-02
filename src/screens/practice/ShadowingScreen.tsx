@@ -296,7 +296,10 @@ export function ShadowingScreen({ navigation }: Props) {
           <Text style={styles.termLabel}>Vocabulario: {currentItem.term}</Text>
           <LinkedSentence text={currentItem.sentence} language={language} style={styles.sentence} />
           {language === 'en' && (
-            <Text style={styles.linkingHint}>💡 ‿ muestra dónde se conectan los sonidos al hablar</Text>
+            <Text style={styles.linkingHint}>
+              💡 ‿ conecta sonidos al hablar · negrita = palabras clave (más fuertes) · gris = palabras
+              rápidas y suaves
+            </Text>
           )}
         </View>
 

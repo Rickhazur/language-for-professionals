@@ -137,7 +137,10 @@ export function RoleplayPhrasePracticeScreen({ route, navigation }: Props) {
           <Text style={styles.translation}>{phrase.translation}</Text>
           <Text style={styles.tip}>💡 {phrase.tip}</Text>
           {language === 'en' && (
-            <Text style={styles.linkingHint}>‿ muestra dónde se conectan los sonidos al hablar</Text>
+            <Text style={styles.linkingHint}>
+              ‿ conecta sonidos al hablar · negrita = palabras clave (más fuertes) · gris = palabras
+              rápidas y suaves
+            </Text>
           )}
         </View>
 
