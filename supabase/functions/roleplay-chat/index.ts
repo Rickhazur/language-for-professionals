@@ -63,23 +63,38 @@ function buildRoleplaySystemPrompt(args: {
   objective: string;
   difficulty: string;
   targetLanguageName: string;
+  wrappingUp?: boolean;
 }): string {
-  return `Eres un actor de roleplay para practicar idiomas. Interpretas un personaje
-dentro de este escenario para que un estudiante practique ${args.targetLanguageName}:
+  const wrapUpInstruction = args.wrappingUp
+    ? `\n\nLa práctica está por terminar: en tu próxima respuesta, empieza a cerrar la conversación de forma natural (como alguien que tiene que irse a otra cosa, o que siente que ya cubrieron lo importante) — no la cortes en seco, pero tampoco abras temas nuevos.`
+    : '';
+
+  return `Eres una persona real dentro de esta situación de práctica de idiomas — no un
+actor consciente de estar actuando, no un asistente. Vives este momento y
+reaccionas como lo haría alguien real, con tu propia personalidad.
 
 Escenario: ${args.title}
 Contexto: ${args.context}
 Objetivo del estudiante: ${args.objective}
 Nivel del estudiante (CEFR): ${args.difficulty}
 
-Reglas:
-1. Responde ÚNICAMENTE en ${args.targetLanguageName}, en el personaje del escenario.
-2. Ajusta la complejidad de tu lenguaje al nivel ${args.difficulty} del estudiante.
-3. Mantén cada respuesta breve (2-4 frases), como una conversación real, no un ensayo.
-4. No salgas del personaje. No expliques gramática ni corrijas errores durante
-   la conversación — eso pasa después, al final.
-5. Haz avanzar la conversación de forma natural según lo que el estudiante escriba.
-6. Empieza tú la conversación con la primera línea del personaje.`;
+Cómo actuar:
+1. Invéntate un nombre y una personalidad concreta y consistente (con su propio
+   humor, prisa, entusiasmo o lo que encaje con el escenario) — nunca seas neutral
+   o genérico. Preséntate de forma natural si el contexto lo pide.
+2. Responde ÚNICAMENTE en ${args.targetLanguageName}, siempre en personaje.
+3. Ajusta tu vocabulario al nivel ${args.difficulty}, pero sin sonar robótico
+   ni artificialmente simple.
+4. Respuestas cortas y naturales (1-3 frases), como mensajes reales — no discursos.
+5. Si el estudiante escribe algo confuso, muy corto, o fuera de tema, reacciona
+   como lo haría una persona real (pide que aclare, muestra que no entendiste,
+   o redirige la conversación) — nunca lo ignores ni sigas como si nada.
+6. No corrijas gramática ni salgas del personaje durante la conversación —
+   eso pasa después, al final.
+7. Agrega pequeños detalles y preguntas de seguimiento como lo haría alguien
+   real, en vez de solo reaccionar mecánicamente a la última frase.
+8. Tú empiezas: abre con una línea que se sienta como el arranque real de esta
+   situación — nunca un saludo genérico tipo "hola, empecemos".${wrapUpInstruction}`;
 }
 
 function buildFeedbackPrompt(args: { transcript: string; targetLanguageName: string; difficulty: string }): string {
@@ -88,9 +103,16 @@ ${args.targetLanguageName} (nivel CEFR ${args.difficulty}). Transcripción compl
 
 ${args.transcript}
 
-Escribe feedback de 3 a 5 frases en español, evaluando: gramática, vocabulario
-usado, qué tan apropiado fue el tono/registro para el escenario, y una
-sugerencia concreta de mejora. Tono constructivo, directo. No uses markdown.`;
+Escribe feedback de 4 a 6 frases en español, en tono constructivo y directo,
+como lo haría un profesor que estuvo escuchando. Sé específico, no genérico:
+
+1. Cita textualmente 1-2 frases que el estudiante realmente escribió.
+2. Para cada una, di qué estuvo bien o qué la haría sonar más natural/correcta
+   (ofrece la versión mejorada exacta, no solo la categoría del error).
+3. Menciona si el tono/registro fue apropiado para este escenario específico.
+4. Termina con UNA sugerencia concreta para la próxima práctica — no una lista.
+
+No uses markdown. No inventes frases que el estudiante no escribió.`;
 }
 
 Deno.serve(async (req: Request) => {
@@ -234,12 +256,14 @@ Deno.serve(async (req: Request) => {
 
       const targetLanguageName = LANGUAGE_NAMES[conversation.language] ?? conversation.language;
       const scenario = conversation.course_plan_roleplays;
+      const upcomingTurnsUsed = Math.floor((nextOrderIndex + 2) / 2);
       const systemPrompt = buildRoleplaySystemPrompt({
         title: scenario.title,
         context: scenario.context,
         objective: scenario.objective,
         difficulty: scenario.difficulty,
         targetLanguageName,
+        wrappingUp: upcomingTurnsUsed >= MAX_TURNS - 1,
       });
 
       const chatMessages: ChatMessage[] = [
@@ -263,11 +287,9 @@ Deno.serve(async (req: Request) => {
         return jsonResponse({ error: aiMsgError?.message ?? 'No se pudo guardar la respuesta.' }, 500);
       }
 
-      const turnsUsed = Math.floor((nextOrderIndex + 2) / 2);
-
       return jsonResponse({
         messages: [userMessageRow, aiMessageRow],
-        shouldFinish: turnsUsed >= MAX_TURNS,
+        shouldFinish: upcomingTurnsUsed >= MAX_TURNS,
       });
     }
 
