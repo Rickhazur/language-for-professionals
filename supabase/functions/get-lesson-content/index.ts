@@ -7,6 +7,7 @@
 // generate-course-plan (AI_API_KEY / AI_BASE_URL / AI_MODEL).
 
 import { createClient } from 'npm:@supabase/supabase-js@2';
+import { checkQuota } from '../_shared/quota.ts';
 
 type AdminClient = ReturnType<typeof createClient>;
 
@@ -294,7 +295,7 @@ Deno.serve(async (req: Request) => {
 
     const { data: item } = await admin
       .from('course_plan_items')
-      .select('id, course_plan_id, title, description, skill_focus')
+      .select('id, course_plan_id, title, description, skill_focus, status')
       .eq('id', coursePlanItemId)
       .maybeSingle();
 
@@ -310,6 +311,13 @@ Deno.serve(async (req: Request) => {
 
     if (!plan || plan.student_id !== user.id) {
       return jsonResponse({ error: 'Este módulo no pertenece a tu plan de curso.' }, 403);
+    }
+
+    // Revisar un módulo ya completado siempre es gratis — el cupo solo se
+    // revisa la primera vez que se empieza uno nuevo.
+    if (item.status !== 'completed') {
+      const quota = await checkQuota(admin, user.id);
+      if (!quota.allowed) return jsonResponse({ error: quota.message }, 403);
     }
 
     const { data: studentProfile } = await admin

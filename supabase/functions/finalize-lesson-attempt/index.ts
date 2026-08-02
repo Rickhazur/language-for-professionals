@@ -6,6 +6,7 @@
 
 import { createClient } from 'npm:@supabase/supabase-js@2';
 import { recordActivityAndAwardPoints, checkLessonMilestones } from '../_shared/gamification.ts';
+import { logUsage } from '../_shared/quota.ts';
 
 const POINTS_PER_LESSON = 15;
 const LANGUAGE_NAMES: Record<string, string> = { en: 'inglés', es: 'español' };
@@ -65,7 +66,7 @@ Deno.serve(async (req: Request) => {
 
     const { data: item } = await admin
       .from('course_plan_items')
-      .select('id, course_plan_id, title, description, skill_focus')
+      .select('id, course_plan_id, title, description, skill_focus, status')
       .eq('id', coursePlanItemId)
       .maybeSingle();
 
@@ -154,7 +155,17 @@ texto plano.`;
       return jsonResponse({ error: attemptError?.message ?? 'No se pudo guardar el intento.' }, 500);
     }
 
+    const wasAlreadyCompleted = item.status === 'completed';
+
     await admin.from('course_plan_items').update({ status: 'completed' }).eq('id', coursePlanItemId);
+
+    if (!wasAlreadyCompleted) {
+      try {
+        await logUsage(admin, user.id, 'lesson');
+      } catch (quotaError) {
+        console.error('logUsage failed:', quotaError);
+      }
+    }
 
     let gamification: { totalPoints: number; currentStreak: number; longestStreak: number } | null = null;
     let newBadges: Awaited<ReturnType<typeof recordActivityAndAwardPoints>>['newBadges'] = [];

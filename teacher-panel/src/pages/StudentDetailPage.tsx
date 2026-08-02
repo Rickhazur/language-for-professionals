@@ -5,6 +5,7 @@ import { useAuth } from '../hooks/useAuth';
 import { supabase } from '../config/supabase';
 import { scoreBackground, scoreColor } from '../lib/scoreColor';
 import { statusForBox, statusBackground, statusColor, STATUS_LABELS } from '../lib/vocabularyStatus';
+import { summarizePlanUsage } from '../lib/planStatus';
 import {
   Profile,
   StudentProfile,
@@ -14,6 +15,8 @@ import {
   TeacherNote,
   CoursePlanVocabularyTerm,
   StudentVocabularyProgress,
+  Plan,
+  StudentPlan,
 } from '../types/database';
 
 const LANGUAGE_LABELS: Record<string, string> = { en: 'Inglés', es: 'Español' };
@@ -55,6 +58,11 @@ export function StudentDetailPage() {
   const [error, setError] = useState<string | null>(null);
   const [generatingSummary, setGeneratingSummary] = useState(false);
   const [savingNote, setSavingNote] = useState(false);
+  const [plans, setPlans] = useState<Plan[]>([]);
+  const [studentPlan, setStudentPlan] = useState<StudentPlan | null>(null);
+  const [usageCreatedAt, setUsageCreatedAt] = useState<string[]>([]);
+  const [selectedPlanId, setSelectedPlanId] = useState('');
+  const [assigningPlan, setAssigningPlan] = useState(false);
 
   const loadData = useCallback(async () => {
     if (!studentId || !session) return;
@@ -151,6 +159,24 @@ export function StudentDetailPage() {
       setVocabularyProgress([]);
     }
 
+    const [plansRes, studentPlanRes] = await Promise.all([
+      supabase.from('plans').select('*'),
+      supabase.from('student_plans').select('*').eq('student_id', studentId).eq('is_active', true).maybeSingle(),
+    ]);
+
+    setPlans(plansRes.data ?? []);
+    setStudentPlan(studentPlanRes.data ?? null);
+
+    if (studentPlanRes.data) {
+      const usageRes = await supabase
+        .from('app_usage_log')
+        .select('created_at')
+        .eq('student_plan_id', studentPlanRes.data.id);
+      setUsageCreatedAt((usageRes.data ?? []).map((r) => r.created_at));
+    } else {
+      setUsageCreatedAt([]);
+    }
+
     setLoading(false);
   }, [studentId, session]);
 
@@ -200,6 +226,32 @@ export function StudentDetailPage() {
 
     setNotes((prev) => [data, ...prev]);
     setNewNote('');
+  };
+
+  const handleAssignPlan = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!studentId || !selectedPlanId) return;
+
+    setAssigningPlan(true);
+    const { error: fnError } = await supabase.functions.invoke('assign-student-plan', {
+      body: { studentId, planId: selectedPlanId },
+    });
+    setAssigningPlan(false);
+
+    if (fnError) {
+      let message = fnError instanceof Error ? fnError.message : 'No se pudo asignar el plan.';
+      try {
+        const body = await (fnError as { context?: Response })?.context?.json();
+        if (body?.error) message = body.error;
+      } catch {
+        // se queda con message
+      }
+      setError(message);
+      return;
+    }
+
+    setSelectedPlanId('');
+    await loadData();
   };
 
   if (loading) {
@@ -259,6 +311,64 @@ export function StudentDetailPage() {
             <div className="stat-label">Precisión promedio</div>
           </div>
         </div>
+      </section>
+
+      <section className="panel">
+        <h2 className="panel-title">Plan</h2>
+        {studentPlan ? (
+          (() => {
+            const plan = plans.find((p) => p.id === studentPlan.plan_id);
+            if (!plan) return <p className="empty-state">Plan asignado no encontrado.</p>;
+            const usage = summarizePlanUsage(studentPlan, plan, usageCreatedAt);
+            return (
+              <div className="stat-row">
+                <div className="stat-box">
+                  <div className="stat-value">{plan.name}</div>
+                  <div className="stat-label">Paquete actual</div>
+                </div>
+                <div className="stat-box">
+                  <div className="stat-value">
+                    {usage.totalUsed}
+                    {usage.totalLimit !== null ? ` / ${usage.totalLimit}` : ''}
+                  </div>
+                  <div className="stat-label">Sesiones usadas (total)</div>
+                </div>
+                <div className="stat-box">
+                  <div className="stat-value">
+                    {usage.weeklyUsed}
+                    {usage.weeklyLimit !== null ? ` / ${usage.weeklyLimit}` : ''}
+                  </div>
+                  <div className="stat-label">Sesiones usadas (esta semana)</div>
+                </div>
+                {usage.weeksRemaining !== null && (
+                  <div className="stat-box">
+                    <div className="stat-value">{usage.weeksRemaining}</div>
+                    <div className="stat-label">Semanas restantes</div>
+                  </div>
+                )}
+              </div>
+            );
+          })()
+        ) : (
+          <p className="empty-state">Sin plan asignado — este estudiante tiene práctica ilimitada en la app.</p>
+        )}
+        <form onSubmit={handleAssignPlan} className="note-form">
+          <select
+            className="input"
+            value={selectedPlanId}
+            onChange={(e) => setSelectedPlanId(e.target.value)}
+          >
+            <option value="">Elige un paquete…</option>
+            {plans.map((p) => (
+              <option key={p.id} value={p.id}>
+                {p.name}
+              </option>
+            ))}
+          </select>
+          <button className="button button-primary" type="submit" disabled={assigningPlan || !selectedPlanId}>
+            {assigningPlan ? 'Asignando…' : studentPlan ? 'Cambiar paquete' : 'Asignar paquete'}
+          </button>
+        </form>
       </section>
 
       <section className="panel">

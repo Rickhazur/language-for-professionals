@@ -12,6 +12,7 @@
 
 import { createClient } from 'npm:@supabase/supabase-js@2';
 import { recordActivityAndAwardPoints } from '../_shared/gamification.ts';
+import { checkQuota, logUsage } from '../_shared/quota.ts';
 
 const MAX_MESSAGE_LENGTH = 1000;
 const MAX_TURNS = 8; // pares pregunta/respuesta antes de forzar a terminar
@@ -178,6 +179,9 @@ Deno.serve(async (req: Request) => {
       const targetLanguage = studentProfile?.target_language ?? coursePlan.language;
       const targetLanguageName = LANGUAGE_NAMES[targetLanguage] ?? targetLanguage;
 
+      const quota = await checkQuota(admin, user.id);
+      if (!quota.allowed) return jsonResponse({ error: quota.message }, 403);
+
       const systemPrompt = buildRoleplaySystemPrompt({
         title: roleplay.title,
         context: roleplay.context,
@@ -340,6 +344,12 @@ Deno.serve(async (req: Request) => {
 
       if (updateError || !updatedConversation) {
         return jsonResponse({ error: updateError?.message ?? 'No se pudo guardar el feedback.' }, 500);
+      }
+
+      try {
+        await logUsage(admin, user.id, 'roleplay');
+      } catch (quotaError) {
+        console.error('logUsage failed:', quotaError);
       }
 
       let gamification = null;

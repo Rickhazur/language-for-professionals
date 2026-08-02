@@ -11,6 +11,7 @@
 
 import { createClient } from 'npm:@supabase/supabase-js@2';
 import { BadgeAward, checkPhonemeMastery, recordActivityAndAwardPoints } from '../_shared/gamification.ts';
+import { checkQuota, logUsage } from '../_shared/quota.ts';
 
 const MAX_REFERENCE_LENGTH = 300;
 const POINTS_PER_ATTEMPT = 5;
@@ -202,6 +203,18 @@ Deno.serve(async (req: Request) => {
       return jsonResponse({ error: `Idioma no soportado: ${language}` }, 400);
     }
 
+    const admin = createClient(supabaseUrl, serviceRoleKey);
+
+    // El cupo del plan solo aplica al shadowing independiente (sessionId
+    // real, referencia a practice_sessions). Las llamadas con sessionId nulo
+    // vienen de la práctica de pronunciación dentro de una lección (ya
+    // cuenta vía finalize-lesson-attempt) o del banco de frases de roleplay
+    // (herramienta de apoyo, no consume cupo aparte).
+    if (sessionId) {
+      const quota = await checkQuota(admin, user.id);
+      if (!quota.allowed) return jsonResponse({ error: quota.message }, 403);
+    }
+
     const audioBytes = base64ToBytes(audioBase64);
     if (audioBytes.byteLength > MAX_AUDIO_BYTES) {
       return jsonResponse({ error: 'El audio es demasiado grande.' }, 400);
@@ -255,8 +268,6 @@ Deno.serve(async (req: Request) => {
     const best = result.NBest[0];
     const words = best.Words ?? [];
 
-    const admin = createClient(supabaseUrl, serviceRoleKey);
-
     const { data: attempt, error: attemptError } = await admin
       .from('shadowing_attempts')
       .insert({
@@ -276,6 +287,14 @@ Deno.serve(async (req: Request) => {
 
     if (attemptError || !attempt) {
       return jsonResponse({ error: attemptError?.message ?? 'No se pudo guardar el resultado.' }, 500);
+    }
+
+    if (sessionId) {
+      try {
+        await logUsage(admin, user.id, 'shadowing');
+      } catch (quotaError) {
+        console.error('logUsage failed:', quotaError);
+      }
     }
 
     const wordRows = words.map((w, index) => ({

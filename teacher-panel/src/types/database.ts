@@ -104,3 +104,19 @@ export interface TeacherNote {
   created_at: string;
   updated_at: string;
 }
+
+export interface Plan {
+  id: string;
+  name: string;
+  total_sessions: number | null;
+  weekly_session_limit: number | null;
+  duration_weeks: number | null;
+}
+
+export interface StudentPlan {
+  id: string;
+  student_id: string;
+  plan_id: string;
+  started_at: string;
+  is_active: boolean;
+}
