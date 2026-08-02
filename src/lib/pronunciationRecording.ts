@@ -5,9 +5,11 @@ import { Audio } from 'expo-av';
 // (endpoint de audio corto, tier gratuito) pueda decodificarlo. Confirmado
 // contra el endpoint real de Azure:
 //   - iOS: WAV/PCM 16kHz mono — probado en vivo, reconocimiento perfecto.
-//   - Web: WebM/Opus — expo-av lo graba así por defecto en navegador;
-//     coincide con un content-type documentado por Azure, no lo probé en
-//     vivo desde este entorno (sin micrófono real disponible aquí).
+//   - Web: WAV/PCM 16kHz mono — igual que iOS, pero generado a mano con la
+//     Web Audio API (ver webPcmRecorder.ts) en vez de expo-av. Antes se
+//     grababa WebM/Opus (lo que expo-av produce por defecto en navegador),
+//     pero Azure no lo decodificaba: llegaba con score 0 y "no dicha" en
+//     todas las palabras, el mismo fallo ya visto con MP3 en este endpoint.
 //   - Android: AMR-WB — expo-av NO puede grabar WAV/PCM crudo en Android
 //     (MediaRecorder no lo soporta) ni WebM/Opus (el encoder Opus no está
 //     expuesto en el enum de expo-av). AMR-WB es la opción más razonable
@@ -35,6 +37,8 @@ export const PRONUNCIATION_RECORDING_OPTIONS: Audio.RecordingOptions = {
     linearPCMIsBigEndian: false,
     linearPCMIsFloat: false,
   },
+  // No se usa en la práctica: en web grabamos con WebPcmRecorder en vez de
+  // expo-av (ver PronunciationRecorder), pero expo-av exige este campo.
   web: {
     mimeType: 'audio/webm;codecs=opus',
     bitsPerSecond: 128000,
@@ -42,9 +46,8 @@ export const PRONUNCIATION_RECORDING_OPTIONS: Audio.RecordingOptions = {
 };
 
 export function getRecordingContentType(): string {
-  if (Platform.OS === 'ios') return 'audio/wav; codecs=audio/pcm; samplerate=16000';
   if (Platform.OS === 'android') return 'audio/amr-wb';
-  return 'audio/webm; codecs=opus';
+  return 'audio/wav; codecs=audio/pcm; samplerate=16000';
 }
 
 export function blobToBase64(blob: Blob): Promise<string> {

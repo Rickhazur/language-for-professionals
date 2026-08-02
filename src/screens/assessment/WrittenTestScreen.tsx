@@ -11,7 +11,10 @@ import {
   AnsweredQuestion,
   START_LEVEL_INDEX,
   TOTAL_WRITTEN_QUESTIONS,
-  nextLevelIndex,
+  StaircaseState,
+  advanceStaircase,
+  finalLevelFromReversals,
+  initialStaircaseState,
   pickQuestion,
   summarizeWritten,
 } from '../../features/assessment/engine';
@@ -24,7 +27,8 @@ export function WrittenTestScreen({ navigation }: Props) {
   const language = studentProfile?.target_language ?? 'en';
   const bank = useMemo(() => QUESTION_BANK[language], [language]);
 
-  const [levelIndex, setLevelIndex] = useState(START_LEVEL_INDEX);
+  const [staircase, setStaircase] = useState<StaircaseState>(initialStaircaseState);
+  const [reversalLevels, setReversalLevels] = useState<number[]>([]);
   const [usedIds, setUsedIds] = useState<Set<string>>(new Set());
   const [history, setHistory] = useState<AnsweredQuestion[]>([]);
   const [currentSkill, setCurrentSkill] = useState<AssessmentSkill>('grammar');
@@ -41,19 +45,22 @@ export function WrittenTestScreen({ navigation }: Props) {
     const correct = selectedIndex === currentQuestion.answerIndex;
     const newHistory = [...history, { question: currentQuestion, selectedIndex, correct }];
     const newUsedIds = new Set(usedIds).add(currentQuestion.id);
-    const newLevelIndex = nextLevelIndex(levelIndex, correct);
+    const { next: newStaircase, reversalLevelIndex } = advanceStaircase(staircase, correct);
+    const newReversalLevels = reversalLevelIndex !== null ? [...reversalLevels, reversalLevelIndex] : reversalLevels;
 
     if (newHistory.length >= TOTAL_WRITTEN_QUESTIONS) {
-      navigation.navigate('OralAssessment', summarizeWritten(newHistory, newLevelIndex));
+      const finalLevelIndex = finalLevelFromReversals(newReversalLevels, newStaircase.levelIndex);
+      navigation.navigate('OralAssessment', summarizeWritten(newHistory, finalLevelIndex));
       return;
     }
 
     const nextSkill: AssessmentSkill = currentSkill === 'grammar' ? 'vocabulary' : 'grammar';
-    const nextQuestion = pickQuestion(bank, newLevelIndex, nextSkill, newUsedIds);
+    const nextQuestion = pickQuestion(bank, newStaircase.levelIndex, nextSkill, newUsedIds);
 
     setHistory(newHistory);
     setUsedIds(newUsedIds);
-    setLevelIndex(newLevelIndex);
+    setStaircase(newStaircase);
+    setReversalLevels(newReversalLevels);
     setCurrentSkill(nextSkill);
     setCurrentQuestion(nextQuestion);
     setSelectedIndex(null);

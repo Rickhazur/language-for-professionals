@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { View, Text, StyleSheet, Alert, ActivityIndicator } from 'react-native';
+import { View, Text, StyleSheet, Alert, ActivityIndicator, Platform } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Audio } from 'expo-av';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
@@ -9,11 +9,8 @@ import { ProgressBar } from '../../components/common/ProgressBar';
 import { useAuth } from '../../hooks/useAuth';
 import { supabase } from '../../config/supabase';
 import { playAudioUri } from '../../lib/audio';
-import {
-  PRONUNCIATION_RECORDING_OPTIONS,
-  blobToBase64,
-  getRecordingContentType,
-} from '../../lib/pronunciationRecording';
+import { blobToBase64, getRecordingContentType } from '../../lib/pronunciationRecording';
+import { PronunciationRecorder } from '../../lib/pronunciationRecorder';
 import { buildGamificationMessage } from '../../lib/gamificationAlert';
 import { colors, spacing, cardShadow } from '../../constants/theme';
 
@@ -46,7 +43,7 @@ export function ShadowingScreen({ navigation }: Props) {
   const [analyzing, setAnalyzing] = useState(false);
   const [submitting, setSubmitting] = useState(false);
 
-  const recordingRef = useRef<Audio.Recording | null>(null);
+  const recorderRef = useRef(new PronunciationRecorder());
   const sentencesPracticedRef = useRef(0);
   const sessionStartRef = useRef(new Date());
   const sessionIdRef = useRef<string | null>(null);
@@ -98,7 +95,7 @@ export function ShadowingScreen({ navigation }: Props) {
 
   useEffect(() => {
     return () => {
-      recordingRef.current?.stopAndUnloadAsync().catch(() => {});
+      recorderRef.current.cancel();
     };
   }, []);
 
@@ -140,25 +137,23 @@ export function ShadowingScreen({ navigation }: Props) {
 
   const startRecording = async () => {
     try {
-      const permission = await Audio.requestPermissionsAsync();
-      if (!permission.granted) {
-        Alert.alert('Permiso necesario', 'Activa el acceso al micrófono para grabar tu pronunciación.');
-        return;
+      if (Platform.OS !== 'web') {
+        const permission = await Audio.requestPermissionsAsync();
+        if (!permission.granted) {
+          Alert.alert('Permiso necesario', 'Activa el acceso al micrófono para grabar tu pronunciación.');
+          return;
+        }
       }
-      await Audio.setAudioModeAsync({ allowsRecordingIOS: true, playsInSilentModeIOS: true });
-      const { recording } = await Audio.Recording.createAsync(PRONUNCIATION_RECORDING_OPTIONS);
-      recordingRef.current = recording;
+      await recorderRef.current.start();
       setStatus('recording');
     } catch {
-      Alert.alert('Error', 'No se pudo iniciar la grabación.');
+      Alert.alert('Error', 'No se pudo iniciar la grabación. Verifica el permiso de micrófono.');
     }
   };
 
   const stopRecording = async () => {
     try {
-      await recordingRef.current?.stopAndUnloadAsync();
-      const uri = recordingRef.current?.getURI() ?? null;
-      recordingRef.current = null;
+      const uri = await recorderRef.current.stop();
       setRecordingUri(uri);
       setStatus('recorded');
     } catch {

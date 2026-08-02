@@ -2,8 +2,11 @@ import { CefrLevel } from '../../types/database';
 import { AssessmentQuestion, AssessmentSkill } from '../../data/levelAssessmentQuestions';
 
 export const LEVELS: CefrLevel[] = ['A1', 'A2', 'B1', 'B2', 'C1', 'C2'];
-export const TOTAL_WRITTEN_QUESTIONS = 12;
+export const TOTAL_WRITTEN_QUESTIONS = 18;
 export const START_LEVEL_INDEX = 2; // arranca en B1
+
+const INITIAL_STEP = 2;
+const MIN_STEP = 1;
 
 export interface AnsweredQuestion {
   question: AssessmentQuestion;
@@ -11,10 +14,52 @@ export interface AnsweredQuestion {
   correct: boolean;
 }
 
-// Escalera adaptativa: acierto sube un nivel CEFR, error baja uno.
-export function nextLevelIndex(current: number, correct: boolean): number {
-  const next = current + (correct ? 1 : -1);
-  return Math.min(LEVELS.length - 1, Math.max(0, next));
+// ── Escalera adaptativa (modelo tipo British Council / Cambridge) ───────
+// En vez de subir/bajar siempre un nivel fijo, el "paso" empieza grande
+// (para ubicar rápido la región correcta) y se reduce a la mitad cada vez
+// que el estudiante cambia de dirección (pasa de acertar a fallar o
+// viceversa) — eso es un "reversal". El nivel final se calcula como el
+// promedio de los reversals, no solo la última respuesta, para que una
+// pregunta suerte/mala racha aislada no decida todo el resultado.
+export interface StaircaseState {
+  levelIndex: number;
+  step: number;
+  lastDirection: 'up' | 'down' | null;
+}
+
+export function initialStaircaseState(): StaircaseState {
+  return { levelIndex: START_LEVEL_INDEX, step: INITIAL_STEP, lastDirection: null };
+}
+
+export function advanceStaircase(
+  state: StaircaseState,
+  correct: boolean
+): { next: StaircaseState; reversalLevelIndex: number | null } {
+  const direction: 'up' | 'down' = correct ? 'up' : 'down';
+  const isReversal = state.lastDirection !== null && state.lastDirection !== direction;
+  const nextStep = isReversal ? Math.max(MIN_STEP, Math.floor(state.step / 2)) : state.step;
+  const delta = direction === 'up' ? nextStep : -nextStep;
+  const nextLevelIndex = Math.min(LEVELS.length - 1, Math.max(0, state.levelIndex + delta));
+
+  return {
+    next: { levelIndex: nextLevelIndex, step: nextStep, lastDirection: direction },
+    reversalLevelIndex: isReversal ? state.levelIndex : null,
+  };
+}
+
+// Nivel final a partir de los puntos de "reversal" registrados durante la
+// prueba. Solo se promedian los últimos reversals (se descartan los
+// primeros, que son parte de la búsqueda gruesa inicial y todavía no
+// reflejan el nivel real) — la misma práctica estándar de los métodos de
+// escalera adaptativa. Sin reversals (el estudiante acertó o falló todo,
+// típico de niveles muy bajos o muy altos) se usa el último índice alcanzado.
+const REVERSALS_TO_AVERAGE = 6;
+
+export function finalLevelFromReversals(reversalLevels: number[], fallbackLevelIndex: number): number {
+  if (reversalLevels.length === 0) return fallbackLevelIndex;
+  const tail = reversalLevels.slice(-REVERSALS_TO_AVERAGE);
+  const avg = tail.reduce((sum, v) => sum + v, 0) / tail.length;
+  return Math.min(LEVELS.length - 1, Math.max(0, Math.round(avg)));
 }
 
 export function pickQuestion(
