@@ -37,6 +37,12 @@ const VOCABULARY_MILESTONES = [
   { count: 100, title: '100 palabras dominadas', description: 'Dominaste 100 términos de vocabulario, ¡impresionante!', icon: '🎓' },
 ];
 
+const LESSON_MILESTONES = [
+  { count: 1, title: 'Primera lección', description: 'Completaste tu primera lección del curso.', icon: '🎉' },
+  { count: 5, title: '5 lecciones completadas', description: 'Completaste 5 lecciones de tu curso.', icon: '📘' },
+  { count: 10, title: '10 lecciones completadas', description: 'Completaste 10 lecciones, ¡vas muy bien!', icon: '🏆' },
+];
+
 async function awardBadgeIfNew(admin: AdminClient, studentId: string, award: BadgeAward): Promise<BadgeAward | null> {
   const { data, error } = await admin
     .from('student_badges')
@@ -172,6 +178,30 @@ export async function checkVocabularyMilestones(
       const badge = await awardBadgeIfNew(admin, studentId, {
         badge_type: 'vocabulary_mastery',
         badge_key: `vocab_${milestone.count}`,
+        title: milestone.title,
+        description: milestone.description,
+        icon: milestone.icon,
+      });
+      if (badge) newBadges.push(badge);
+    }
+  }
+  return newBadges;
+}
+
+// Insignias por hitos de lecciones completadas (course_plan_item_attempts).
+// Se llama después de cada lección terminada con el conteo total actualizado
+// de módulos completados para ese estudiante.
+export async function checkLessonMilestones(
+  admin: AdminClient,
+  studentId: string,
+  completedCount: number
+): Promise<BadgeAward[]> {
+  const newBadges: BadgeAward[] = [];
+  for (const milestone of LESSON_MILESTONES) {
+    if (completedCount >= milestone.count) {
+      const badge = await awardBadgeIfNew(admin, studentId, {
+        badge_type: 'lesson_completion',
+        badge_key: `lesson_${milestone.count}`,
         title: milestone.title,
         description: milestone.description,
         icon: milestone.icon,

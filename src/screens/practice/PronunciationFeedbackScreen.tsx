@@ -1,15 +1,20 @@
 import React, { useState } from 'react';
 import { View, Text, StyleSheet, ScrollView, Pressable } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { NativeStackScreenProps } from '@react-navigation/native-stack';
-import { PracticeStackParamList } from '../../navigation/types';
+import { PronunciationFeedbackParams } from '../../navigation/types';
 import { Button } from '../../components/common/Button';
 import { scoreColor, scoreBackground } from '../../lib/scoreColor';
 import { WordErrorType } from '../../types/database';
 import { colors, spacing, cardShadow, gradients } from '../../constants/theme';
 import { LinearGradient } from 'expo-linear-gradient';
 
-type Props = NativeStackScreenProps<PracticeStackParamList, 'PronunciationFeedback'>;
+// Se monta tanto en PracticeStack (shadowing libre) como en ProgressStack
+// (ejercicios de speaking dentro de una lección) — el tipo de navigation no
+// se ata a ningún ParamList específico porque solo usa goBack().
+interface Props {
+  route: { params: PronunciationFeedbackParams };
+  navigation: { goBack: () => void };
+}
 
 const ERROR_LABELS: Record<string, string> = {
   Omission: 'no dicha',

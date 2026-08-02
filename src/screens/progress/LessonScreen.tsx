@@ -1,11 +1,12 @@
-import React, { useState } from 'react';
+import React, { useCallback, useState } from 'react';
 import { View, Text, StyleSheet, Alert } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { useFocusEffect } from '@react-navigation/native';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { ProgressStackParamList } from '../../navigation/types';
 import { Button } from '../../components/common/Button';
 import { supabase } from '../../config/supabase';
-import { CoursePlanItemStatus } from '../../types/database';
+import { CoursePlanItemStatus, Skill } from '../../types/database';
 import { colors, spacing, vibrant } from '../../constants/theme';
 
 type Props = NativeStackScreenProps<ProgressStackParamList, 'Lesson'>;
@@ -25,21 +26,60 @@ const STATUS_LABELS: Record<CoursePlanItemStatus, string> = {
   completed: 'Completado',
 };
 
+const START_LABELS: Record<CoursePlanItemStatus, string> = {
+  not_started: 'Comenzar módulo',
+  in_progress: 'Continuar módulo',
+  completed: 'Repasar módulo',
+};
+
 export function LessonScreen({ route, navigation }: Props) {
   const { item, moduleNumber, totalModules } = route.params;
   const [status, setStatus] = useState<CoursePlanItemStatus>(item.status);
   const [updating, setUpdating] = useState(false);
 
-  const updateStatus = async (nextStatus: CoursePlanItemStatus) => {
-    setUpdating(true);
-    const { error } = await supabase.from('course_plan_items').update({ status: nextStatus }).eq('id', item.id);
-    setUpdating(false);
+  useFocusEffect(
+    useCallback(() => {
+      supabase
+        .from('course_plan_items')
+        .select('status')
+        .eq('id', item.id)
+        .maybeSingle()
+        .then(({ data }) => {
+          if (data) setStatus(data.status);
+        });
+    }, [item.id])
+  );
 
+  const launchExercise = async () => {
+    if (status === 'not_started') {
+      setUpdating(true);
+      await supabase.from('course_plan_items').update({ status: 'in_progress' }).eq('id', item.id);
+      setUpdating(false);
+      setStatus('in_progress');
+    }
+
+    const skill: Skill | null = item.skill_focus;
+    if (skill === 'speaking') {
+      navigation.navigate('LessonSpeaking', { item });
+    } else if (skill === 'writing') {
+      navigation.navigate('LessonWriting', { item });
+    } else if (skill === 'vocabulary') {
+      navigation.navigate('LessonVocabulary', { item });
+    } else {
+      // grammar | reading | listening
+      navigation.navigate('LessonQuiz', { item });
+    }
+  };
+
+  const resetModule = async () => {
+    setUpdating(true);
+    const { error } = await supabase.from('course_plan_items').update({ status: 'not_started' }).eq('id', item.id);
+    setUpdating(false);
     if (error) {
-      Alert.alert('Error', 'No se pudo actualizar el progreso.');
+      Alert.alert('Error', 'No se pudo reiniciar el módulo.');
       return;
     }
-    setStatus(nextStatus);
+    setStatus('not_started');
   };
 
   return (
@@ -61,27 +101,17 @@ export function LessonScreen({ route, navigation }: Props) {
 
         {item.description && <Text style={styles.description}>{item.description}</Text>}
         {item.estimated_minutes && <Text style={styles.meta}>Duración estimada: {item.estimated_minutes} min</Text>}
-
-        <Text style={styles.placeholderNote}>
-          El contenido interactivo de esta lección (ejercicios, audio, práctica guiada) se
-          agregará más adelante. Por ahora puedes usar este módulo para llevar el registro de tu
-          avance.
-        </Text>
       </View>
 
       <View style={styles.actions}>
-        {status === 'not_started' && (
-          <Button label="Comenzar módulo" onPress={() => updateStatus('in_progress')} loading={updating} />
-        )}
-        {status === 'in_progress' && (
-          <Button label="Marcar como completado" onPress={() => updateStatus('completed')} loading={updating} />
-        )}
+        <Button label={START_LABELS[status]} onPress={launchExercise} loading={updating} />
         {status === 'completed' && (
           <Button
             label="Reiniciar módulo"
             variant="secondary"
-            onPress={() => updateStatus('not_started')}
+            onPress={resetModule}
             loading={updating}
+            style={styles.resetButton}
           />
         )}
       </View>
@@ -163,13 +193,11 @@ const styles = StyleSheet.create({
     color: colors.textMuted,
     marginBottom: spacing.lg,
   },
-  placeholderNote: {
-    fontSize: 13,
-    color: colors.textMuted,
-    marginTop: spacing.lg,
-    fontStyle: 'italic',
-  },
   actions: {
     padding: spacing.lg,
+    gap: spacing.sm,
+  },
+  resetButton: {
+    marginTop: 0,
   },
 });

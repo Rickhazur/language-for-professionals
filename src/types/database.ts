@@ -247,10 +247,55 @@ export interface CoursePlanItem {
 export interface CoursePlanVocabularyTerm {
   id: string;
   course_plan_id: string;
+  course_plan_item_id: string | null;
   term: string;
   translation: string;
   example_sentence: string | null;
   created_at: string;
+}
+
+export interface LessonQuizQuestion {
+  id?: string;
+  prompt: string;
+  options: string[];
+  answerIndex: number;
+}
+
+export interface LessonQuizContent {
+  intro: string | null;
+  questions: LessonQuizQuestion[];
+}
+
+export interface LessonSpeakingSentence {
+  term: string | null;
+  sentence: string;
+}
+
+export interface LessonSpeakingContent {
+  sentences: LessonSpeakingSentence[];
+}
+
+export interface LessonWritingContent {
+  prompt: string;
+  guidance: string | null;
+}
+
+export type LessonContent = LessonQuizContent | LessonSpeakingContent | LessonWritingContent;
+
+export interface CoursePlanItemContent {
+  id: string;
+  course_plan_item_id: string;
+  content: LessonContent;
+  generated_at: string;
+}
+
+export interface CoursePlanItemAttempt {
+  id: string;
+  course_plan_item_id: string;
+  student_id: string;
+  score: number | null;
+  responses: Record<string, unknown>;
+  completed_at: string;
 }
 
 export interface StudentVocabularyProgress {

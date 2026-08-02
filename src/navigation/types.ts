@@ -7,6 +7,16 @@ import {
   StudentBadge,
 } from '../types/database';
 
+// Reutilizado por PracticeStack y ProgressStack: PronunciationFeedbackScreen
+// se monta en ambos (práctica libre de shadowing y ejercicios de speaking
+// dentro de una lección), así que su tipo de parámetros vive aparte en vez
+// de estar atado a un solo ParamList.
+export interface PronunciationFeedbackParams {
+  attempt: ShadowingAttempt;
+  words: ShadowingWordWithPhonemes[];
+  newBadges?: StudentBadge[];
+}
+
 export type AuthStackParamList = {
   Welcome: undefined;
   Login: undefined;
@@ -31,16 +41,17 @@ export type ProgressStackParamList = {
   Lesson: { item: CoursePlanItem; moduleNumber: number; totalModules: number };
   VocabularyBank: undefined;
   VocabularyReview: undefined;
+  LessonQuiz: { item: CoursePlanItem };
+  LessonSpeaking: { item: CoursePlanItem };
+  LessonWriting: { item: CoursePlanItem };
+  LessonVocabulary: { item: CoursePlanItem };
+  PronunciationFeedback: PronunciationFeedbackParams;
 };
 
 export type PracticeStackParamList = {
   PracticeMenu: undefined;
   Shadowing: undefined;
-  PronunciationFeedback: {
-    attempt: ShadowingAttempt;
-    words: ShadowingWordWithPhonemes[];
-    newBadges?: StudentBadge[];
-  };
+  PronunciationFeedback: PronunciationFeedbackParams;
   RoleplaySelect: undefined;
   RoleplayConversation: { roleplayId: string; title: string };
   RoleplayFeedback: { feedback: string; title: string };

@@ -12,7 +12,10 @@
 
 import { createClient } from 'npm:@supabase/supabase-js@2';
 
-const MAX_TEXT_LENGTH = 300;
+// 300 alcanzaba para frases sueltas de shadowing, pero se quedaba corto para
+// guiones de listening (párrafos cortos) — Azure soporta payloads bastante
+// más grandes que esto, 600 sigue siendo conservador.
+const MAX_TEXT_LENGTH = 600;
 
 // Voces neurales: inglés americano y español latino (México), como pediste.
 const VOICES: Record<string, { locale: string; name: string; gender: string }> = {
