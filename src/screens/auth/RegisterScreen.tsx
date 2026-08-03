@@ -7,6 +7,7 @@ import { Button } from '../../components/common/Button';
 import { PillButton } from '../../components/common/PillButton';
 import { GradientBackground } from '../../components/common/GradientBackground';
 import { GlassCard } from '../../components/common/GlassCard';
+import { LogoMark } from '../../components/common/LogoMark';
 import { useAuth } from '../../hooks/useAuth';
 import { useLanguage } from '../../hooks/useLanguage';
 import { supabase } from '../../config/supabase';
@@ -69,7 +70,10 @@ export function RegisterScreen({ navigation }: Props) {
     <GradientBackground>
       <KeyboardAvoidingView style={styles.flex} behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
         <ScrollView contentContainerStyle={styles.scroll} keyboardShouldPersistTaps="handled">
-          <Text style={styles.brand}>🎓 LinguaPro</Text>
+          <View style={styles.brandRow}>
+            <LogoMark size={22} />
+            <Text style={styles.brand}>LinguaPro</Text>
+          </View>
           <Text style={styles.title}>{t('register.title')}</Text>
           <Text style={styles.subtitle}>{t('register.subtitle')}</Text>
 
@@ -135,12 +139,17 @@ const styles = StyleSheet.create({
     paddingHorizontal: spacing.lg,
     paddingVertical: spacing.xl,
   },
+  brandRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: spacing.xs,
+    marginBottom: spacing.xl,
+  },
   brand: {
     fontSize: 15,
     fontWeight: '800',
     color: vibrant.textOnGradientMuted,
-    textAlign: 'center',
-    marginBottom: spacing.xl,
     letterSpacing: 0.5,
   },
   title: {

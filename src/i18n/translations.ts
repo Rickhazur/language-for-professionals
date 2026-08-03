@@ -72,6 +72,11 @@ export const translations = {
     'resetPassword.alertSuccessTitle': 'Contraseña actualizada',
     'resetPassword.alertSuccessMessage': 'Ya puedes iniciar sesión con tu nueva contraseña.',
 
+    // InstallAppBanner
+    'installApp.prompt': 'Instala LinguaPro en tu celular para practicar más rápido.',
+    'installApp.iosHint': 'Instala LinguaPro: toca compartir ⬆️ y elige "Agregar a pantalla de inicio".',
+    'installApp.button': 'Instalar',
+
     // Tab bar (MainTabs)
     'tabs.home': 'Inicio',
     'tabs.practice': 'Práctica',
@@ -213,6 +218,10 @@ export const translations = {
     'resetPassword.alertMismatchMessage': "Passwords don't match.",
     'resetPassword.alertSuccessTitle': 'Password updated',
     'resetPassword.alertSuccessMessage': 'You can now log in with your new password.',
+
+    'installApp.prompt': 'Install LinguaPro on your phone to practice faster.',
+    'installApp.iosHint': 'Install LinguaPro: tap share ⬆️ and choose "Add to Home Screen".',
+    'installApp.button': 'Install',
 
     'tabs.home': 'Home',
     'tabs.practice': 'Practice',

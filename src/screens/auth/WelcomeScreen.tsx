@@ -4,6 +4,8 @@ import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { Ionicons } from '@expo/vector-icons';
 import { AuthStackParamList } from '../../navigation/types';
 import { PillButton } from '../../components/common/PillButton';
+import { InstallAppBanner } from '../../components/common/InstallAppBanner';
+import { LogoMark } from '../../components/common/LogoMark';
 import { useLanguage } from '../../hooks/useLanguage';
 import { TranslationKey } from '../../i18n/translations';
 import { spacing, colors, vibrant } from '../../constants/theme';
@@ -37,7 +39,10 @@ export function WelcomeScreen({ navigation }: Props) {
 
       <ScrollView contentContainerStyle={styles.scroll} showsVerticalScrollIndicator={false}>
         <View style={styles.topRow}>
-          <Text style={styles.brand}>🎓 LinguaPro</Text>
+          <View style={styles.brandRow}>
+            <LogoMark size={20} />
+            <Text style={styles.brand}>LinguaPro</Text>
+          </View>
           <View style={styles.langToggle}>
             <Pressable
               onPress={() => setUiLanguage('es')}
@@ -53,6 +58,7 @@ export function WelcomeScreen({ navigation }: Props) {
             </Pressable>
           </View>
         </View>
+        <InstallAppBanner />
         <Text style={styles.headline}>{t('common.greeting')}</Text>
         <Text style={styles.tagline}>{t('welcome.tagline')}</Text>
 
@@ -140,6 +146,11 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'space-between',
     marginBottom: spacing.lg,
+  },
+  brandRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: spacing.xs,
   },
   brand: {
     fontSize: 15,
