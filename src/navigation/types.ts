@@ -69,6 +69,12 @@ export type AppStackParamList = {
 
 export type AssessmentStackParamList = {
   WrittenTest: undefined;
-  OralAssessment: { grammarScore: number; vocabularyScore: number; writtenLevelIndex: number };
+  Listening: { grammarScore: number; vocabularyScore: number; writtenLevelIndex: number };
+  OralAssessment: {
+    grammarScore: number;
+    vocabularyScore: number;
+    writtenLevelIndex: number;
+    listeningScore: number;
+  };
   Result: { assessment: LevelAssessment };
 };

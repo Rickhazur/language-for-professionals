@@ -2,13 +2,13 @@ import React, { useEffect, useRef, useState } from 'react';
 import { View, Text, StyleSheet, Alert } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Audio } from 'expo-av';
-import * as Speech from 'expo-speech';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { AssessmentStackParamList } from '../../navigation/types';
 import { Button } from '../../components/common/Button';
 import { OnboardingProgress } from '../../components/common/OnboardingProgress';
 import { useAuth } from '../../hooks/useAuth';
 import { supabase } from '../../config/supabase';
+import { playAudioUri } from '../../lib/audio';
 import { ORAL_SENTENCES } from '../../data/oralAssessmentSentences';
 import { computeOverallLevel, simulateSpeakingScore } from '../../features/assessment/engine';
 import { colors, spacing, cardShadow } from '../../constants/theme';
@@ -16,8 +16,12 @@ import { colors, spacing, cardShadow } from '../../constants/theme';
 type Props = NativeStackScreenProps<AssessmentStackParamList, 'OralAssessment'>;
 type RecordingStatus = 'idle' | 'recording' | 'recorded';
 
+function extractFunctionErrorMessage(error: unknown): string {
+  return error instanceof Error ? error.message : 'Ocurrió un error inesperado.';
+}
+
 export function OralAssessmentScreen({ route, navigation }: Props) {
-  const { grammarScore, vocabularyScore, writtenLevelIndex } = route.params;
+  const { grammarScore, vocabularyScore, writtenLevelIndex, listeningScore } = route.params;
   const { session, studentProfile } = useAuth();
   const language = studentProfile?.target_language ?? 'en';
   const sentences = ORAL_SENTENCES[language];
@@ -25,6 +29,7 @@ export function OralAssessmentScreen({ route, navigation }: Props) {
   const [sentenceIndex, setSentenceIndex] = useState(0);
   const [status, setStatus] = useState<RecordingStatus>('idle');
   const [submitting, setSubmitting] = useState(false);
+  const [loadingReference, setLoadingReference] = useState(false);
   const recordingRef = useRef<Audio.Recording | null>(null);
 
   useEffect(() => {
@@ -33,9 +38,21 @@ export function OralAssessmentScreen({ route, navigation }: Props) {
     };
   }, []);
 
-  const playReference = () => {
-    Speech.stop();
-    Speech.speak(sentences[sentenceIndex], { language: language === 'en' ? 'en-US' : 'es-ES' });
+  const playReference = async () => {
+    setLoadingReference(true);
+    const { data, error } = await supabase.functions.invoke('text-to-speech', {
+      body: { text: sentences[sentenceIndex], language },
+    });
+    setLoadingReference(false);
+
+    if (error || !data?.audioUrl) {
+      Alert.alert('No se pudo generar el audio', extractFunctionErrorMessage(error));
+      return;
+    }
+
+    playAudioUri(data.audioUrl).catch(() => {
+      Alert.alert('Error', 'No se pudo reproducir el audio.');
+    });
   };
 
   const startRecording = async () => {
@@ -81,7 +98,7 @@ export function OralAssessmentScreen({ route, navigation }: Props) {
     // fonema) todavía no está conectado, así que generamos un valor plausible
     // para poder cerrar el flujo y guardar un resultado real en la base de datos.
     const speakingScore = simulateSpeakingScore();
-    const overallLevel = computeOverallLevel(writtenLevelIndex, speakingScore);
+    const overallLevel = computeOverallLevel(writtenLevelIndex, speakingScore, listeningScore);
 
     const { data, error } = await supabase
       .from('level_assessments')
@@ -91,6 +108,7 @@ export function OralAssessmentScreen({ route, navigation }: Props) {
         overall_level: overallLevel,
         grammar_score: grammarScore,
         vocabulary_score: vocabularyScore,
+        listening_score: listeningScore,
         speaking_score: speakingScore,
         notes: 'Puntaje de pronunciación simulado; el análisis de audio real se conectará más adelante.',
       })
@@ -131,7 +149,13 @@ export function OralAssessmentScreen({ route, navigation }: Props) {
           <Text style={styles.sentence}>{sentences[sentenceIndex]}</Text>
         </View>
 
-        <Button label="Escuchar frase" variant="secondary" onPress={playReference} style={styles.listenButton} />
+        <Button
+          label="Escuchar frase"
+          variant="secondary"
+          onPress={playReference}
+          loading={loadingReference}
+          style={styles.listenButton}
+        />
 
         {status !== 'recording' ? (
           <Button

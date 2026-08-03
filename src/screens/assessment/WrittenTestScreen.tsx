@@ -50,7 +50,7 @@ export function WrittenTestScreen({ navigation }: Props) {
 
     if (newHistory.length >= TOTAL_WRITTEN_QUESTIONS) {
       const finalLevelIndex = finalLevelFromReversals(newReversalLevels, newStaircase.levelIndex);
-      navigation.navigate('OralAssessment', summarizeWritten(newHistory, finalLevelIndex));
+      navigation.navigate('Listening', summarizeWritten(newHistory, finalLevelIndex));
       return;
     }
 

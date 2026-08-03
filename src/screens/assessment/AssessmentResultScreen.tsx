@@ -11,9 +11,13 @@ import { LinearGradient } from 'expo-linear-gradient';
 
 type Props = NativeStackScreenProps<AssessmentStackParamList, 'Result'>;
 
-const SKILL_ROWS: { key: 'grammar_score' | 'vocabulary_score' | 'speaking_score'; label: string }[] = [
+const SKILL_ROWS: {
+  key: 'grammar_score' | 'vocabulary_score' | 'listening_score' | 'speaking_score';
+  label: string;
+}[] = [
   { key: 'grammar_score', label: 'Gramática' },
   { key: 'vocabulary_score', label: 'Vocabulario' },
+  { key: 'listening_score', label: 'Escucha' },
   { key: 'speaking_score', label: 'Pronunciación (simulado)' },
 ];
 

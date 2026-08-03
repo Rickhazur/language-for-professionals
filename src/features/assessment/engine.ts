@@ -108,10 +108,15 @@ export function simulateSpeakingScore(): number {
   return Math.round(55 + Math.random() * 40); // 55-95
 }
 
-export function computeOverallLevel(writtenLevelIndex: number, speakingScoreAvg: number): CefrLevel {
+export function computeOverallLevel(
+  writtenLevelIndex: number,
+  speakingScoreAvg: number,
+  listeningScoreAvg: number
+): CefrLevel {
+  const oralAvg = (speakingScoreAvg + listeningScoreAvg) / 2;
   let adjustment = 0;
-  if (speakingScoreAvg >= 85) adjustment = 1;
-  else if (speakingScoreAvg < 70) adjustment = -1;
+  if (oralAvg >= 85) adjustment = 1;
+  else if (oralAvg < 70) adjustment = -1;
 
   const finalIndex = Math.min(LEVELS.length - 1, Math.max(0, writtenLevelIndex + adjustment));
   return LEVELS[finalIndex];
