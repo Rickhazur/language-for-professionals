@@ -5,12 +5,13 @@ import { useAuth } from '../hooks/useAuth';
 import { useLanguage } from '../hooks/useLanguage';
 import { AuthStack } from './AuthStack';
 import { OnboardingStack } from './OnboardingStack';
+import { AssessmentStack } from './AssessmentStack';
 import { AppStack } from './AppStack';
 import { PendingApprovalScreen } from '../screens/auth/PendingApprovalScreen';
 import { colors } from '../constants/theme';
 
 export function RootNavigator() {
-  const { session, loading, profile, studentProfile, profileLoading } = useAuth();
+  const { session, loading, profile, studentProfile, profileLoading, hasLevelAssessment, hasCoursePlan } = useAuth();
   const { syncFromNativeLanguage } = useLanguage();
 
   // El idioma de la interfaz sigue al idioma nativo del estudiante una vez
@@ -38,6 +39,34 @@ export function RootNavigator() {
     );
   }
 
+  const needsOnboarding =
+    profile?.role === 'student' && studentProfile !== null && !studentProfile.onboarding_completed;
+
+  // Un estudiante recién registrado ve el examen de nivel de inmediato,
+  // antes que la aprobación del profesor — así vive la experiencia gratis
+  // (examen + plan de curso personalizado) sin esperar a nadie. Solo aplica
+  // a quien de verdad es nuevo: si ya tiene un plan de curso (llegó hasta
+  // aquí bajo el flujo anterior), no lo mandamos de vuelta al examen aunque
+  // no tenga un level_assessments guardado.
+  const needsAssessment =
+    profile?.role === 'student' && !needsOnboarding && !hasLevelAssessment && !hasCoursePlan;
+
+  if (needsOnboarding) {
+    return (
+      <NavigationContainer>
+        <OnboardingStack />
+      </NavigationContainer>
+    );
+  }
+
+  if (needsAssessment) {
+    return (
+      <NavigationContainer>
+        <AssessmentStack />
+      </NavigationContainer>
+    );
+  }
+
   if (profile && !profile.is_approved) {
     return (
       <NavigationContainer>
@@ -46,12 +75,9 @@ export function RootNavigator() {
     );
   }
 
-  const needsOnboarding =
-    profile?.role === 'student' && studentProfile !== null && !studentProfile.onboarding_completed;
-
   return (
     <NavigationContainer>
-      {needsOnboarding ? <OnboardingStack /> : <AppStack />}
+      <AppStack />
     </NavigationContainer>
   );
 }

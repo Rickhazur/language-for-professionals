@@ -104,6 +104,15 @@ export function OralAssessmentScreen({ route, navigation }: Props) {
       return;
     }
 
+    // Genera el plan de curso automáticamente con este resultado recién
+    // guardado — mejor esfuerzo: si falla, igual mostramos el resultado
+    // (el estudiante puede generarlo a mano después desde Progreso).
+    try {
+      await supabase.functions.invoke('generate-course-plan');
+    } catch (planError) {
+      console.error('auto course plan generation failed:', planError);
+    }
+
     navigation.replace('Result', { assessment: data });
   };
 

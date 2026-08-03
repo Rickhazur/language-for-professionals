@@ -1,9 +1,10 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { View, Text, StyleSheet, Linking, Alert } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { AssessmentStackParamList } from '../../navigation/types';
 import { Button } from '../../components/common/Button';
+import { useAuth } from '../../hooks/useAuth';
 import { useLanguage } from '../../hooks/useLanguage';
 import { colors, spacing, gradients, cardShadow } from '../../constants/theme';
 import { LinearGradient } from 'expo-linear-gradient';
@@ -23,6 +24,22 @@ const TEACHER_WHATSAPP_NUMBER = '573166267846';
 export function AssessmentResultScreen({ route, navigation }: Props) {
   const { assessment } = route.params;
   const { t } = useLanguage();
+  const { refreshProfile } = useAuth();
+  const [continuing, setContinuing] = useState(false);
+
+  const handleContinue = async () => {
+    // Este resultado se ve en dos contextos: (1) examen obligatorio recién
+    // registrado — AssessmentStack se monta directo desde RootNavigator, sin
+    // navegador padre; al refrescar el perfil, RootNavigator ve el
+    // level_assessments/course_plan recién creado y cambia de pantalla solo
+    // (mismo patrón que ProfessionalProfileScreen para salir de onboarding).
+    // (2) reintento opcional desde Inicio — ahí Assessment sí es un modal
+    // anidado dentro de AppStack, así que además hay que cerrarlo a mano.
+    setContinuing(true);
+    await refreshProfile();
+    navigation.getParent()?.goBack();
+    setContinuing(false);
+  };
 
   const handleClaimOffer = async () => {
     const languageLabel = assessment.language === 'en' ? t('common.langEnglish') : t('common.langSpanish');
@@ -78,7 +95,7 @@ export function AssessmentResultScreen({ route, navigation }: Props) {
         </View>
       </View>
 
-      <Button label="Ir a mi progreso" variant="secondary" onPress={() => navigation.getParent()?.goBack()} style={styles.button} />
+      <Button label="Continuar" variant="secondary" onPress={handleContinue} loading={continuing} style={styles.button} />
     </SafeAreaView>
   );
 }

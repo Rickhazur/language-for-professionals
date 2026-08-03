@@ -9,6 +9,8 @@ interface AuthContextValue {
   profile: Profile | null;
   studentProfile: StudentProfile | null;
   profileLoading: boolean;
+  hasLevelAssessment: boolean;
+  hasCoursePlan: boolean;
   signIn: (email: string, password: string) => Promise<{ error: string | null }>;
   signUp: (email: string, password: string) => Promise<{ error: string | null }>;
   signOut: () => Promise<void>;
@@ -23,6 +25,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [profile, setProfile] = useState<Profile | null>(null);
   const [studentProfile, setStudentProfile] = useState<StudentProfile | null>(null);
   const [profileLoading, setProfileLoading] = useState(false);
+  const [hasLevelAssessment, setHasLevelAssessment] = useState(false);
+  const [hasCoursePlan, setHasCoursePlan] = useState(false);
 
   // Varias fuentes pueden llamar loadProfile casi al mismo tiempo (el listener
   // de onAuthStateChange y un refreshProfile() explícito). Este contador
@@ -37,9 +41,23 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     const { data: profileRow } = await supabase.from('profiles').select('*').eq('id', userId).single();
 
     let studentRow: StudentProfile | null = null;
+    let levelAssessmentExists = false;
+    let coursePlanExists = false;
     if (profileRow?.role === 'student') {
       const { data } = await supabase.from('student_profiles').select('*').eq('id', userId).single();
       studentRow = data ?? null;
+
+      const { count: assessmentCount } = await supabase
+        .from('level_assessments')
+        .select('id', { count: 'exact', head: true })
+        .eq('student_id', userId);
+      levelAssessmentExists = (assessmentCount ?? 0) > 0;
+
+      const { count: planCount } = await supabase
+        .from('course_plans')
+        .select('id', { count: 'exact', head: true })
+        .eq('student_id', userId);
+      coursePlanExists = (planCount ?? 0) > 0;
     }
 
     if (requestId !== latestRequestId.current) {
@@ -48,6 +66,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
     setProfile(profileRow ?? null);
     setStudentProfile(studentRow);
+    setHasLevelAssessment(levelAssessmentExists);
+    setHasCoursePlan(coursePlanExists);
     setProfileLoading(false);
   }, []);
 
@@ -65,6 +85,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       } else {
         setProfile(null);
         setStudentProfile(null);
+        setHasLevelAssessment(false);
+        setHasCoursePlan(false);
       }
     });
 
@@ -103,6 +125,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         profile,
         studentProfile,
         profileLoading,
+        hasLevelAssessment,
+        hasCoursePlan,
         signIn,
         signUp,
         signOut,
