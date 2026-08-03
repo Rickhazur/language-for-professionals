@@ -59,6 +59,19 @@ export const translations = {
     'forgotPassword.alertSentTitle': 'Correo enviado',
     'forgotPassword.alertSentMessage': 'Revisa tu bandeja para restablecer tu contraseña.',
 
+    // ResetPasswordScreen
+    'resetPassword.title': 'Nueva contraseña',
+    'resetPassword.subtitle': 'Elige una contraseña nueva para tu cuenta',
+    'resetPassword.newPasswordPlaceholder': 'Contraseña nueva',
+    'resetPassword.confirmPasswordPlaceholder': 'Confirma la contraseña',
+    'resetPassword.submitButton': 'Guardar contraseña',
+    'resetPassword.alertMissingTitle': 'Faltan datos',
+    'resetPassword.alertMissingMessage': 'Completa los dos campos.',
+    'resetPassword.alertTooShortMessage': 'La contraseña debe tener al menos 6 caracteres.',
+    'resetPassword.alertMismatchMessage': 'Las contraseñas no coinciden.',
+    'resetPassword.alertSuccessTitle': 'Contraseña actualizada',
+    'resetPassword.alertSuccessMessage': 'Ya puedes iniciar sesión con tu nueva contraseña.',
+
     // Tab bar (MainTabs)
     'tabs.home': 'Inicio',
     'tabs.practice': 'Práctica',
@@ -188,6 +201,18 @@ export const translations = {
     'forgotPassword.alertMissingMessage': 'Enter your email address.',
     'forgotPassword.alertSentTitle': 'Email sent',
     'forgotPassword.alertSentMessage': 'Check your inbox to reset your password.',
+
+    'resetPassword.title': 'New password',
+    'resetPassword.subtitle': 'Choose a new password for your account',
+    'resetPassword.newPasswordPlaceholder': 'New password',
+    'resetPassword.confirmPasswordPlaceholder': 'Confirm password',
+    'resetPassword.submitButton': 'Save password',
+    'resetPassword.alertMissingTitle': 'Missing info',
+    'resetPassword.alertMissingMessage': 'Fill in both fields.',
+    'resetPassword.alertTooShortMessage': 'Password must be at least 6 characters.',
+    'resetPassword.alertMismatchMessage': "Passwords don't match.",
+    'resetPassword.alertSuccessTitle': 'Password updated',
+    'resetPassword.alertSuccessMessage': 'You can now log in with your new password.',
 
     'tabs.home': 'Home',
     'tabs.practice': 'Practice',

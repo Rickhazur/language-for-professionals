@@ -11,10 +11,12 @@ interface AuthContextValue {
   profileLoading: boolean;
   hasLevelAssessment: boolean;
   hasCoursePlan: boolean;
+  passwordRecovery: boolean;
   signIn: (email: string, password: string) => Promise<{ error: string | null }>;
   signUp: (email: string, password: string) => Promise<{ error: string | null }>;
   signOut: () => Promise<void>;
   refreshProfile: () => Promise<void>;
+  updatePassword: (password: string) => Promise<{ error: string | null }>;
 }
 
 export const AuthContext = createContext<AuthContextValue | undefined>(undefined);
@@ -27,6 +29,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [profileLoading, setProfileLoading] = useState(false);
   const [hasLevelAssessment, setHasLevelAssessment] = useState(false);
   const [hasCoursePlan, setHasCoursePlan] = useState(false);
+  // Se activa cuando el usuario llega desde el enlace de "olvidé mi
+  // contraseña" (evento PASSWORD_RECOVERY de Supabase). Mientras esté en true,
+  // RootNavigator debe mostrar la pantalla de nueva contraseña por encima de
+  // cualquier otra cosa, aunque ya exista una "session" técnicamente activa.
+  const [passwordRecovery, setPasswordRecovery] = useState(false);
 
   // Varias fuentes pueden llamar loadProfile casi al mismo tiempo (el listener
   // de onAuthStateChange y un refreshProfile() explícito). Este contador
@@ -78,7 +85,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       if (data.session) loadProfile(data.session.user.id);
     });
 
-    const { data: listener } = supabase.auth.onAuthStateChange((_event, newSession) => {
+    const { data: listener } = supabase.auth.onAuthStateChange((event, newSession) => {
+      if (event === 'PASSWORD_RECOVERY') {
+        setPasswordRecovery(true);
+      }
       setSession(newSession);
       if (newSession) {
         loadProfile(newSession.user.id);
@@ -104,7 +114,19 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   };
 
   const signOut = async () => {
+    setPasswordRecovery(false);
     await supabase.auth.signOut();
+  };
+
+  const updatePassword = async (password: string) => {
+    const { error } = await supabase.auth.updateUser({ password });
+    if (error) return { error: error.message };
+    // La sesión de recuperación ya cumplió su propósito: cerramos sesión para
+    // que el estudiante entre de nuevo con su contraseña nueva, en vez de
+    // dejarlo "colgado" en una sesión temporal de recuperación.
+    setPasswordRecovery(false);
+    await supabase.auth.signOut();
+    return { error: null };
   };
 
   const refreshProfile = useCallback(async () => {
@@ -127,10 +149,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         profileLoading,
         hasLevelAssessment,
         hasCoursePlan,
+        passwordRecovery,
         signIn,
         signUp,
         signOut,
         refreshProfile,
+        updatePassword,
       }}
     >
       {children}

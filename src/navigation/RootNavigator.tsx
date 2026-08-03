@@ -8,10 +8,20 @@ import { OnboardingStack } from './OnboardingStack';
 import { AssessmentStack } from './AssessmentStack';
 import { AppStack } from './AppStack';
 import { PendingApprovalScreen } from '../screens/auth/PendingApprovalScreen';
+import { ResetPasswordScreen } from '../screens/auth/ResetPasswordScreen';
 import { colors } from '../constants/theme';
 
 export function RootNavigator() {
-  const { session, loading, profile, studentProfile, profileLoading, hasLevelAssessment, hasCoursePlan } = useAuth();
+  const {
+    session,
+    loading,
+    profile,
+    studentProfile,
+    profileLoading,
+    hasLevelAssessment,
+    hasCoursePlan,
+    passwordRecovery,
+  } = useAuth();
   const { syncFromNativeLanguage } = useLanguage();
 
   // El idioma de la interfaz sigue al idioma nativo del estudiante una vez
@@ -28,6 +38,18 @@ export function RootNavigator() {
       <View style={styles.loading}>
         <ActivityIndicator size="large" color={colors.primary} />
       </View>
+    );
+  }
+
+  // El enlace de "olvidé mi contraseña" deja al usuario con una sesión de
+  // recuperación temporal (Supabase la trata como sesión activa). Sin este
+  // chequeo, los pasos de abajo lo mandarían directo a su cuenta ya
+  // autenticada en vez de dejarlo definir la contraseña nueva primero.
+  if (passwordRecovery) {
+    return (
+      <NavigationContainer>
+        <ResetPasswordScreen />
+      </NavigationContainer>
     );
   }
 

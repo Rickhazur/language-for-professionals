@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Text, StyleSheet, Alert } from 'react-native';
+import { Text, StyleSheet, Alert, Platform } from 'react-native';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { AuthStackParamList } from '../../navigation/types';
 import { Input } from '../../components/common/Input';
@@ -23,7 +23,12 @@ export function ForgotPasswordScreen({ navigation }: Props) {
       return;
     }
     setLoading(true);
-    const { error } = await supabase.auth.resetPasswordForEmail(email.trim());
+    // El enlace del correo tiene que traer al usuario de vuelta a la app para
+    // que pueda escribir su contraseña nueva (ver ResetPasswordScreen). En
+    // web usamos la URL donde ya está corriendo la app; en la app nativa,
+    // el esquema "linguapro://" definido en app.json.
+    const redirectTo = Platform.OS === 'web' ? window.location.origin : 'linguapro://reset-password';
+    const { error } = await supabase.auth.resetPasswordForEmail(email.trim(), { redirectTo });
     setLoading(false);
     if (error) {
       Alert.alert('Error', error.message);
