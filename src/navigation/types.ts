@@ -76,6 +76,7 @@ export type AppStackParamList = {
   MainTabs: undefined;
   Assessment: undefined;
   BookClass: undefined;
+  EditProfile: undefined;
 };
 
 export type AssessmentStackParamList = {

@@ -1,17 +1,20 @@
 import React, { useCallback, useState } from 'react';
 import { Text, View, StyleSheet, ActivityIndicator, Pressable } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { useFocusEffect } from '@react-navigation/native';
+import { useFocusEffect, useNavigation } from '@react-navigation/native';
+import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { Button } from '../../components/common/Button';
 import { useAuth } from '../../hooks/useAuth';
 import { useLanguage } from '../../hooks/useLanguage';
 import { supabase } from '../../config/supabase';
 import { StudentBadge } from '../../types/database';
+import { AppStackParamList } from '../../navigation/types';
 import { colors, spacing, gradients, cardShadow } from '../../constants/theme';
 import { LinearGradient } from 'expo-linear-gradient';
 
 export function ProfileScreen() {
-  const { session, signOut } = useAuth();
+  const { session, studentProfile, signOut } = useAuth();
+  const navigation = useNavigation<NativeStackNavigationProp<AppStackParamList>>();
   const { t, uiLanguage, setUiLanguage } = useLanguage();
   const [badges, setBadges] = useState<StudentBadge[]>([]);
   const [loadingBadges, setLoadingBadges] = useState(true);
@@ -52,6 +55,18 @@ export function ProfileScreen() {
           <Text style={styles.title}>{t('profile.title')}</Text>
           <Text style={styles.email}>{session?.user.email}</Text>
         </View>
+      </View>
+
+      <Text style={styles.sectionTitle}>Perfil profesional</Text>
+      <View style={styles.profileCard}>
+        <Text style={styles.profileLine}>{studentProfile?.occupation || 'Sin ocupación registrada'}</Text>
+        <Text style={styles.profileLineMuted}>{studentProfile?.industry || 'Sin industria registrada'}</Text>
+        <Button
+          label="Editar perfil"
+          variant="secondary"
+          onPress={() => navigation.navigate('EditProfile')}
+          style={styles.editProfileButton}
+        />
       </View>
 
       <Text style={styles.sectionTitle}>{t('profile.languageLabel')}</Text>
@@ -165,6 +180,26 @@ const styles = StyleSheet.create({
   emptyText: {
     fontSize: 14,
     color: colors.textMuted,
+  },
+  profileCard: {
+    backgroundColor: colors.surface,
+    borderRadius: 16,
+    padding: spacing.md,
+    marginBottom: spacing.xl,
+    ...cardShadow,
+  },
+  profileLine: {
+    fontSize: 15,
+    fontWeight: '700',
+    color: colors.text,
+  },
+  profileLineMuted: {
+    fontSize: 13,
+    color: colors.textMuted,
+    marginTop: 2,
+  },
+  editProfileButton: {
+    marginTop: spacing.sm,
   },
   badgeGrid: {
     flexDirection: 'row',

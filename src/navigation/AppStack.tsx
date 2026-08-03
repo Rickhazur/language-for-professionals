@@ -4,6 +4,7 @@ import { AppStackParamList } from './types';
 import { MainTabs } from './MainTabs';
 import { AssessmentStack } from './AssessmentStack';
 import { BookClassScreen } from '../screens/booking/BookClassScreen';
+import { EditProfileScreen } from '../screens/profile/EditProfileScreen';
 
 const Stack = createNativeStackNavigator<AppStackParamList>();
 
@@ -13,6 +14,7 @@ export function AppStack() {
       <Stack.Screen name="MainTabs" component={MainTabs} />
       <Stack.Screen name="Assessment" component={AssessmentStack} options={{ presentation: 'fullScreenModal' }} />
       <Stack.Screen name="BookClass" component={BookClassScreen} options={{ presentation: 'fullScreenModal' }} />
+      <Stack.Screen name="EditProfile" component={EditProfileScreen} options={{ presentation: 'fullScreenModal' }} />
     </Stack.Navigator>
   );
 }
