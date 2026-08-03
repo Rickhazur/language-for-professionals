@@ -1,4 +1,5 @@
 import React, { createContext, useEffect, useState, useCallback, useRef, ReactNode } from 'react';
+import { Platform } from 'react-native';
 import { Session } from '@supabase/supabase-js';
 import { supabase } from '../config/supabase';
 import { Profile, StudentProfile } from '../types/database';
@@ -12,6 +13,8 @@ interface AuthContextValue {
   hasLevelAssessment: boolean;
   hasCoursePlan: boolean;
   passwordRecovery: boolean;
+  authLinkError: string | null;
+  clearAuthLinkError: () => void;
   signIn: (email: string, password: string) => Promise<{ error: string | null }>;
   signUp: (email: string, password: string) => Promise<{ error: string | null }>;
   signOut: () => Promise<void>;
@@ -34,6 +37,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   // RootNavigator debe mostrar la pantalla de nueva contraseña por encima de
   // cualquier otra cosa, aunque ya exista una "session" técnicamente activa.
   const [passwordRecovery, setPasswordRecovery] = useState(false);
+  // Cuando el enlace de un correo (recuperar contraseña, confirmación, etc.)
+  // ya venció o ya fue usado, Supabase igual redirige a la app pero con un
+  // "error" en el hash de la URL en vez de una sesión válida. Sin este
+  // chequeo, ese caso queda en silencio — el usuario cae en su sesión
+  // anterior (si tenía una) o en la pantalla de bienvenida, sin ninguna
+  // explicación de por qué el enlace no funcionó.
+  const [authLinkError, setAuthLinkError] = useState<string | null>(null);
 
   // Varias fuentes pueden llamar loadProfile casi al mismo tiempo (el listener
   // de onAuthStateChange y un refreshProfile() explícito). Este contador
@@ -79,6 +89,15 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, []);
 
   useEffect(() => {
+    if (Platform.OS === 'web' && typeof window !== 'undefined' && window.location.hash.includes('error=')) {
+      const params = new URLSearchParams(window.location.hash.slice(1));
+      const description = params.get('error_description');
+      setAuthLinkError(description ? description.replace(/\+/g, ' ') : 'link_error');
+      // Limpia el hash para que no se vuelva a leer en un refresh y no quede
+      // feo en la barra de direcciones.
+      window.history.replaceState(null, '', window.location.pathname + window.location.search);
+    }
+
     supabase.auth.getSession().then(({ data }) => {
       setSession(data.session);
       setLoading(false);
@@ -129,6 +148,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     return { error: null };
   };
 
+  const clearAuthLinkError = useCallback(() => setAuthLinkError(null), []);
+
   const refreshProfile = useCallback(async () => {
     // No usamos el "session" del closure: si refreshProfile se invoca desde una
     // función async ya en curso (como RegisterScreen.handleRegister), esa
@@ -150,6 +171,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         hasLevelAssessment,
         hasCoursePlan,
         passwordRecovery,
+        authLinkError,
+        clearAuthLinkError,
         signIn,
         signUp,
         signOut,

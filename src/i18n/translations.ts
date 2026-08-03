@@ -72,6 +72,12 @@ export const translations = {
     'resetPassword.alertSuccessTitle': 'Contraseña actualizada',
     'resetPassword.alertSuccessMessage': 'Ya puedes iniciar sesión con tu nueva contraseña.',
 
+    // AuthLinkErrorScreen
+    'authLinkError.title': 'Este enlace ya no sirve',
+    'authLinkError.subtitle':
+      'El enlace del correo ya venció o ya fue usado. Pide uno nuevo desde "Olvidé mi contraseña".',
+    'authLinkError.button': 'Entendido',
+
     // InstallAppBanner
     'installApp.prompt': 'Instala LinguaPro en tu celular para practicar más rápido.',
     'installApp.iosHint': 'Instala LinguaPro: toca compartir ⬆️ y elige "Agregar a pantalla de inicio".',
@@ -218,6 +224,10 @@ export const translations = {
     'resetPassword.alertMismatchMessage': "Passwords don't match.",
     'resetPassword.alertSuccessTitle': 'Password updated',
     'resetPassword.alertSuccessMessage': 'You can now log in with your new password.',
+
+    'authLinkError.title': "This link doesn't work anymore",
+    'authLinkError.subtitle': 'The email link expired or was already used. Request a new one from "Forgot password".',
+    'authLinkError.button': 'Got it',
 
     'installApp.prompt': 'Install LinguaPro on your phone to practice faster.',
     'installApp.iosHint': 'Install LinguaPro: tap share ⬆️ and choose "Add to Home Screen".',

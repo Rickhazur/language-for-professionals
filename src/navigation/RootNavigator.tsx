@@ -9,6 +9,7 @@ import { AssessmentStack } from './AssessmentStack';
 import { AppStack } from './AppStack';
 import { PendingApprovalScreen } from '../screens/auth/PendingApprovalScreen';
 import { ResetPasswordScreen } from '../screens/auth/ResetPasswordScreen';
+import { AuthLinkErrorScreen } from '../screens/auth/AuthLinkErrorScreen';
 import { colors } from '../constants/theme';
 
 export function RootNavigator() {
@@ -21,6 +22,7 @@ export function RootNavigator() {
     hasLevelAssessment,
     hasCoursePlan,
     passwordRecovery,
+    authLinkError,
   } = useAuth();
   const { syncFromNativeLanguage } = useLanguage();
 
@@ -38,6 +40,18 @@ export function RootNavigator() {
       <View style={styles.loading}>
         <ActivityIndicator size="large" color={colors.primary} />
       </View>
+    );
+  }
+
+  // Un enlace de correo vencido o ya usado (recuperar contraseña, etc.) trae
+  // un error en el hash de la URL en vez de una sesión — se avisa antes que
+  // cualquier otra cosa para no dejar al usuario confundido en su sesión
+  // anterior o en la bienvenida sin explicación.
+  if (authLinkError) {
+    return (
+      <NavigationContainer>
+        <AuthLinkErrorScreen />
+      </NavigationContainer>
     );
   }
 
