@@ -67,29 +67,33 @@ export function AgendaPage() {
       )}
 
       {bookings.length > 0 && (
-        <table className="table">
-          <thead>
-            <tr>
-              <th>Fecha</th>
-              <th>Hora</th>
-              <th>Duración</th>
-              <th>Estudiante</th>
-            </tr>
-          </thead>
-          <tbody>
-            {bookings.map((b) => {
-              const date = new Date(b.scheduledAt);
-              return (
-                <tr key={b.id}>
-                  <td>{date.toLocaleDateString('es-CO', { weekday: 'short', day: 'numeric', month: 'short' })}</td>
-                  <td>{date.toLocaleTimeString('es-CO', { hour: 'numeric', minute: '2-digit' })}</td>
-                  <td>{b.durationMinutes} min</td>
-                  <td>{b.studentName}</td>
-                </tr>
-              );
-            })}
-          </tbody>
-        </table>
+        <div className="table-wrap">
+          <table className="table">
+            <thead>
+              <tr>
+                <th>Fecha</th>
+                <th>Hora</th>
+                <th>Duración</th>
+                <th>Estudiante</th>
+              </tr>
+            </thead>
+            <tbody>
+              {bookings.map((b) => {
+                const date = new Date(b.scheduledAt);
+                return (
+                  <tr key={b.id}>
+                    <td data-label="Fecha">
+                      {date.toLocaleDateString('es-CO', { weekday: 'short', day: 'numeric', month: 'short' })}
+                    </td>
+                    <td data-label="Hora">{date.toLocaleTimeString('es-CO', { hour: 'numeric', minute: '2-digit' })}</td>
+                    <td data-label="Duración">{b.durationMinutes} min</td>
+                    <td data-label="Estudiante">{b.studentName}</td>
+                  </tr>
+                );
+              })}
+            </tbody>
+          </table>
+        </div>
       )}
     </AppLayout>
   );

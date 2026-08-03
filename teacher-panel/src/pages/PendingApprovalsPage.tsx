@@ -77,36 +77,38 @@ export function PendingApprovalsPage() {
       )}
 
       {pending.length > 0 && (
-        <table className="table">
-          <thead>
-            <tr>
-              <th>Correo</th>
-              <th>Nombre</th>
-              <th>Rol</th>
-              <th>Registrado</th>
-              <th></th>
-            </tr>
-          </thead>
-          <tbody>
-            {pending.map((p) => (
-              <tr key={p.id}>
-                <td>{p.email}</td>
-                <td>{p.full_name || '—'}</td>
-                <td>{ROLE_LABELS[p.role] ?? p.role}</td>
-                <td>{new Date(p.created_at).toLocaleDateString('es')}</td>
-                <td>
-                  <button
-                    className="button button-primary"
-                    onClick={() => handleApprove(p.id)}
-                    disabled={approvingId === p.id}
-                  >
-                    {approvingId === p.id ? 'Aprobando…' : 'Aprobar'}
-                  </button>
-                </td>
+        <div className="table-wrap">
+          <table className="table">
+            <thead>
+              <tr>
+                <th>Correo</th>
+                <th>Nombre</th>
+                <th>Rol</th>
+                <th>Registrado</th>
+                <th></th>
               </tr>
-            ))}
-          </tbody>
-        </table>
+            </thead>
+            <tbody>
+              {pending.map((p) => (
+                <tr key={p.id}>
+                  <td data-label="Correo">{p.email}</td>
+                  <td data-label="Nombre">{p.full_name || '—'}</td>
+                  <td data-label="Rol">{ROLE_LABELS[p.role] ?? p.role}</td>
+                  <td data-label="Registrado">{new Date(p.created_at).toLocaleDateString('es')}</td>
+                  <td>
+                    <button
+                      className="button button-primary"
+                      onClick={() => handleApprove(p.id)}
+                      disabled={approvingId === p.id}
+                    >
+                      {approvingId === p.id ? 'Aprobando…' : 'Aprobar'}
+                    </button>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
       )}
     </AppLayout>
   );

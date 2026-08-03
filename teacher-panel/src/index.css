@@ -345,6 +345,118 @@ a {
   vertical-align: middle;
 }
 
+.table-wrap {
+  overflow-x: auto;
+}
+
+/* La sección "Qué enseñar hoy" es lo primero que ve el profesor — se
+   destaca del resto de paneles con un borde de color en vez de mezclarse
+   con las secciones plegables de abajo. */
+.panel-hero {
+  border: 1.5px solid var(--color-primary);
+}
+
+/* Todo lo que no es la decisión urgente de la clase queda plegado por
+   defecto — el profesor lo abre solo si quiere profundizar. */
+.accordion {
+  background: var(--color-background);
+  border: 1px solid var(--color-border);
+  border-radius: 12px;
+  margin-bottom: 16px;
+  overflow: hidden;
+}
+
+.accordion > summary {
+  cursor: pointer;
+  padding: 16px 20px;
+  font-weight: 700;
+  font-size: 15px;
+  list-style: none;
+}
+
+.accordion > summary::-webkit-details-marker {
+  display: none;
+}
+
+.accordion > summary::after {
+  content: '+';
+  float: right;
+  color: var(--color-text-muted);
+  font-weight: 400;
+}
+
+.accordion[open] > summary::after {
+  content: '−';
+}
+
+.accordion[open] > summary {
+  border-bottom: 1px solid var(--color-border);
+}
+
+.accordion-body {
+  padding: 16px 20px 20px;
+}
+
+/* Celular: la navegación no se encima y las tablas anchas se convierten
+   en listas de tarjetas en vez de desbordarse fuera de la pantalla. */
+@media (max-width: 768px) {
+  .app-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 10px;
+    padding: 12px 16px;
+  }
+
+  .app-header-right {
+    width: 100%;
+    flex-wrap: wrap;
+    gap: 10px;
+  }
+
+  .app-main {
+    padding: 16px;
+  }
+
+  .stat-row {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .table thead {
+    display: none;
+  }
+
+  .table,
+  .table tbody,
+  .table tr,
+  .table td {
+    display: block;
+    width: 100%;
+  }
+
+  .table tr {
+    border: 1px solid var(--color-border);
+    border-radius: 10px;
+    padding: 10px 12px;
+    margin-bottom: 10px;
+  }
+
+  .table td {
+    border-bottom: none;
+    padding: 4px 0;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 12px;
+  }
+
+  .table td::before {
+    content: attr(data-label);
+    font-weight: 600;
+    color: var(--color-text-muted);
+    font-size: 12px;
+  }
+}
+
 .score-chip {
   display: inline-flex;
   align-items: center;

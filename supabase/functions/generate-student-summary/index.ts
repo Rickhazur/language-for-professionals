@@ -106,6 +106,17 @@ Deno.serve(async (req: Request) => {
       return jsonResponse({ error: 'No se encontró el perfil del estudiante.' }, 404);
     }
 
+    // Sin debilidades, intentos ni sesiones, no hay nada real que resumir —
+    // devolvemos eso explícitamente en vez de dejar que el modelo invente un
+    // resumen genérico o vacío que el profesor podría leer en voz alta frente
+    // al estudiante sin darse cuenta de que no dice nada real.
+    const hasWeaknesses = (weaknesses ?? []).length > 0;
+    const hasAttempts = (attempts ?? []).length > 0;
+    const hasSessions = (sessions ?? []).length > 0;
+    if (!hasWeaknesses && !hasAttempts && !hasSessions) {
+      return jsonResponse({ insufficientData: true });
+    }
+
     const targetLanguageName = LANGUAGE_NAMES[studentProfile.target_language] ?? studentProfile.target_language;
 
     const weaknessLines =
