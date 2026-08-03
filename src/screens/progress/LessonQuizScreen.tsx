@@ -248,7 +248,7 @@ const styles = StyleSheet.create({
   },
   nextButton: {
     marginHorizontal: spacing.lg,
-    marginBottom: spacing.lg,
+    marginBottom: 110,
   },
   introContent: {
     padding: spacing.lg,

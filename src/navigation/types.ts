@@ -17,6 +17,10 @@ export interface PronunciationFeedbackParams {
   attempt: ShadowingAttempt;
   words: ShadowingWordWithPhonemes[];
   newBadges?: StudentBadge[];
+  // Solo lo provee ShadowingScreen: avanza a la siguiente frase en vez de
+  // solo volver atrás. Si no viene (caso de lección dentro de ProgressStack),
+  // la pantalla solo ofrece "volver".
+  onNext?: () => void;
 }
 
 export type AuthStackParamList = {
@@ -54,9 +58,16 @@ export type PracticeStackParamList = {
   PracticeMenu: undefined;
   Shadowing: undefined;
   PronunciationFeedback: PronunciationFeedbackParams;
+  GrammarPractice: undefined;
+  ListeningPractice: undefined;
   RoleplaySelect: undefined;
   RoleplayConversation: { roleplayId: string; title: string; relatedObjective: LearningObjective };
-  RoleplayFeedback: { feedback: string; title: string };
+  RoleplayFeedback: {
+    feedback: string;
+    title: string;
+    gamification?: { totalPoints: number; currentStreak: number; longestStreak: number } | null;
+    newBadges?: StudentBadge[];
+  };
   RoleplayPhraseBank: { relatedObjective: LearningObjective };
   RoleplayPhrasePractice: { phrase: RoleplayPhrase };
 };

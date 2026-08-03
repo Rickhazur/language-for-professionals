@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { View, Text, StyleSheet, Alert, ActivityIndicator, Platform } from 'react-native';
+import { View, Text, StyleSheet, Alert, ActivityIndicator, Platform, Pressable } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Audio } from 'expo-av';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
@@ -12,7 +12,8 @@ import { supabase } from '../../config/supabase';
 import { playAudioUri } from '../../lib/audio';
 import { blobToBase64, getRecordingContentType } from '../../lib/pronunciationRecording';
 import { PronunciationRecorder } from '../../lib/pronunciationRecorder';
-import { buildGamificationMessage } from '../../lib/gamificationAlert';
+import { GamificationModal } from '../../components/common/GamificationModal';
+import { GamificationUpdate, StudentBadge } from '../../types/database';
 import { colors, spacing, cardShadow } from '../../constants/theme';
 
 type Props = NativeStackScreenProps<PracticeStackParamList, 'Shadowing'>;
@@ -43,6 +44,8 @@ export function ShadowingScreen({ navigation }: Props) {
   const [playingRecording, setPlayingRecording] = useState(false);
   const [analyzing, setAnalyzing] = useState(false);
   const [submitting, setSubmitting] = useState(false);
+  const [gamificationResult, setGamificationResult] = useState<GamificationUpdate | null>(null);
+  const [newBadges, setNewBadges] = useState<StudentBadge[]>([]);
 
   const recorderRef = useRef(new PronunciationRecorder());
   const sentencesPracticedRef = useRef(0);
@@ -209,6 +212,10 @@ export function ShadowingScreen({ navigation }: Props) {
         attempt: data.attempt,
         words: data.words,
         newBadges: data.newBadges,
+        onNext: () => {
+          navigation.goBack();
+          goToNext();
+        },
       });
     } catch {
       Alert.alert('Error', 'No se pudo analizar tu pronunciación.');
@@ -249,9 +256,16 @@ export function ShadowingScreen({ navigation }: Props) {
 
       if (error) {
         Alert.alert('Error', 'No se pudo guardar la sesión, pero tu práctica quedó completa.');
-      } else {
-        const message = buildGamificationMessage(data?.gamification ?? null, data?.newBadges ?? []);
-        if (message) Alert.alert('¡Sesión completada!', message);
+        setSubmitting(false);
+        navigation.goBack();
+        return;
+      }
+
+      if (data?.gamification) {
+        setNewBadges(data?.newBadges ?? []);
+        setGamificationResult(data.gamification);
+        setSubmitting(false);
+        return;
       }
     }
 
@@ -285,9 +299,14 @@ export function ShadowingScreen({ navigation }: Props) {
   return (
     <SafeAreaView style={styles.container}>
       <View style={styles.header}>
-        <Text style={styles.stepLabel}>
-          Frase {currentIndex + 1} de {items.length}
-        </Text>
+        <View style={styles.headerTopRow}>
+          <Text style={styles.stepLabel}>
+            Frase {currentIndex + 1} de {items.length}
+          </Text>
+          <Pressable onPress={() => navigation.popToTop()} hitSlop={8}>
+            <Text style={styles.exitLink}>Salir</Text>
+          </Pressable>
+        </View>
         <ProgressBar progress={(currentIndex + 1) / items.length} />
       </View>
 
@@ -355,6 +374,16 @@ export function ShadowingScreen({ navigation }: Props) {
           style={styles.footerButton}
         />
       </View>
+
+      <GamificationModal
+        visible={!!gamificationResult}
+        gamification={gamificationResult}
+        newBadges={newBadges}
+        onDismiss={() => {
+          setGamificationResult(null);
+          navigation.goBack();
+        }}
+      />
     </SafeAreaView>
   );
 }
@@ -391,10 +420,20 @@ const styles = StyleSheet.create({
     paddingHorizontal: spacing.lg,
     paddingTop: spacing.md,
   },
+  headerTopRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: spacing.sm,
+  },
   stepLabel: {
     fontSize: 14,
     color: colors.textMuted,
-    marginBottom: spacing.sm,
+  },
+  exitLink: {
+    fontSize: 14,
+    fontWeight: '600',
+    color: colors.primary,
   },
   content: {
     flex: 1,
@@ -429,6 +468,7 @@ const styles = StyleSheet.create({
   },
   footer: {
     padding: spacing.lg,
+    paddingBottom: 110,
     gap: spacing.sm,
   },
   footerButton: {

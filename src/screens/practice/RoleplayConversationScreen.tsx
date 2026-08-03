@@ -15,7 +15,6 @@ import { PracticeStackParamList } from '../../navigation/types';
 import { Button } from '../../components/common/Button';
 import { Input } from '../../components/common/Input';
 import { supabase } from '../../config/supabase';
-import { buildGamificationMessage } from '../../lib/gamificationAlert';
 import { RoleplayMessage } from '../../types/database';
 import { colors, spacing, gradients } from '../../constants/theme';
 import { LinearGradient } from 'expo-linear-gradient';
@@ -105,16 +104,12 @@ export function RoleplayConversationScreen({ route, navigation }: Props) {
       return;
     }
 
-    const gamificationMessage = buildGamificationMessage(data.gamification ?? null, data.newBadges ?? []);
-
     navigation.replace('RoleplayFeedback', {
       feedback: data.conversation.feedback ?? 'Sin feedback disponible.',
       title,
+      gamification: data.gamification ?? null,
+      newBadges: data.newBadges ?? [],
     });
-
-    if (gamificationMessage) {
-      setTimeout(() => Alert.alert('¡Conversación completada!', gamificationMessage), 300);
-    }
   };
 
   if (loading) {
@@ -271,7 +266,7 @@ const styles = StyleSheet.create({
   },
   finishButton: {
     marginHorizontal: spacing.md,
-    marginBottom: spacing.md,
+    marginBottom: 110,
     marginTop: 0,
   },
 });

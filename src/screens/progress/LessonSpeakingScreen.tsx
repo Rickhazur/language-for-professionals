@@ -350,6 +350,7 @@ const styles = StyleSheet.create({
   },
   footer: {
     padding: spacing.lg,
+    paddingBottom: 110,
   },
   footerButton: {
     marginBottom: 0,

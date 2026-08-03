@@ -163,7 +163,7 @@ const styles = StyleSheet.create({
   },
   submitButton: {
     marginHorizontal: spacing.lg,
-    marginBottom: spacing.lg,
+    marginBottom: 110,
   },
   feedbackCard: {
     backgroundColor: '#F5F3FF',

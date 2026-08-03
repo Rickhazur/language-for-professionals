@@ -10,10 +10,10 @@ import { LinearGradient } from 'expo-linear-gradient';
 
 // Se monta tanto en PracticeStack (shadowing libre) como en ProgressStack
 // (ejercicios de speaking dentro de una lección) — el tipo de navigation no
-// se ata a ningún ParamList específico porque solo usa goBack().
+// se ata a ningún ParamList específico porque solo usa goBack()/popToTop().
 interface Props {
   route: { params: PronunciationFeedbackParams };
-  navigation: { goBack: () => void };
+  navigation: { goBack: () => void; popToTop: () => void };
 }
 
 const ERROR_LABELS: Record<string, string> = {
@@ -37,7 +37,7 @@ function ScoreBadge({ label, score }: { label: string; score: number | null }) {
 }
 
 export function PronunciationFeedbackScreen({ route, navigation }: Props) {
-  const { attempt, words, newBadges } = route.params;
+  const { attempt, words, newBadges, onNext } = route.params;
   const [expandedWordId, setExpandedWordId] = useState<string | null>(null);
 
   const expandedWord = words.find((w) => w.id === expandedWordId);
@@ -141,7 +141,31 @@ export function PronunciationFeedbackScreen({ route, navigation }: Props) {
         )}
       </ScrollView>
 
-      <Button label="Volver a practicar" onPress={() => navigation.goBack()} style={styles.backButton} />
+      <View style={styles.footer}>
+        {onNext ? (
+          <>
+            <Button label="Siguiente frase" onPress={onNext} style={styles.footerButton} />
+            <Button
+              label="Practicar esta frase de nuevo"
+              variant="secondary"
+              onPress={() => navigation.goBack()}
+              style={styles.footerButton}
+            />
+          </>
+        ) : (
+          <Button
+            label="Volver a practicar"
+            onPress={() => navigation.goBack()}
+            style={styles.footerButton}
+          />
+        )}
+        <Button
+          label="Volver al menú"
+          variant="secondary"
+          onPress={() => navigation.popToTop()}
+          style={styles.footerButton}
+        />
+      </View>
     </SafeAreaView>
   );
 }
@@ -303,7 +327,12 @@ const styles = StyleSheet.create({
     fontSize: 11,
     color: colors.textMuted,
   },
-  backButton: {
-    margin: spacing.lg,
+  footer: {
+    padding: spacing.lg,
+    paddingBottom: 110,
+    gap: spacing.sm,
+  },
+  footerButton: {
+    marginBottom: 0,
   },
 });

@@ -1,15 +1,17 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { View, Text, StyleSheet } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { PracticeStackParamList } from '../../navigation/types';
 import { Button } from '../../components/common/Button';
+import { GamificationModal } from '../../components/common/GamificationModal';
 import { colors, spacing, cardShadow } from '../../constants/theme';
 
 type Props = NativeStackScreenProps<PracticeStackParamList, 'RoleplayFeedback'>;
 
 export function RoleplayFeedbackScreen({ route, navigation }: Props) {
-  const { feedback, title } = route.params;
+  const { feedback, title, gamification, newBadges } = route.params;
+  const [showGamification, setShowGamification] = useState(!!gamification);
 
   return (
     <SafeAreaView style={styles.container}>
@@ -25,6 +27,13 @@ export function RoleplayFeedbackScreen({ route, navigation }: Props) {
         label="Volver al menú de práctica"
         onPress={() => navigation.navigate('PracticeMenu')}
         style={styles.button}
+      />
+
+      <GamificationModal
+        visible={showGamification}
+        gamification={gamification ?? null}
+        newBadges={newBadges ?? []}
+        onDismiss={() => setShowGamification(false)}
       />
     </SafeAreaView>
   );
@@ -62,6 +71,8 @@ const styles = StyleSheet.create({
     color: colors.text,
   },
   button: {
-    margin: spacing.lg,
+    marginHorizontal: spacing.lg,
+    marginTop: spacing.lg,
+    marginBottom: 110,
   },
 });

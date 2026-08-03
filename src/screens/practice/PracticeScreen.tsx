@@ -36,6 +36,41 @@ export function PracticeScreen({ navigation }: Props) {
           <Text style={styles.cardText}>{t('practice.roleplayText')}</Text>
           <Button label={t('practice.roleplayButton')} onPress={() => navigation.navigate('RoleplaySelect')} />
         </View>
+
+        <View style={[styles.card, styles.secondCard]}>
+          <View style={[styles.iconWrap, { backgroundColor: '#DCFCE7' }]}>
+            <Ionicons name="book-outline" size={22} color="#16A34A" />
+          </View>
+          <Text style={styles.cardTitle}>Vocabulario</Text>
+          <Text style={styles.cardText}>Repasa tus términos profesionales con repetición espaciada.</Text>
+          <Button
+            label="Practicar vocabulario"
+            onPress={() => {
+              const parentNavigate = navigation.getParent()?.navigate as unknown as
+                | ((name: string, params?: object) => void)
+                | undefined;
+              parentNavigate?.('Progress', { screen: 'VocabularyBank' });
+            }}
+          />
+        </View>
+
+        <View style={[styles.card, styles.secondCard]}>
+          <View style={[styles.iconWrap, { backgroundColor: '#FEF3C7' }]}>
+            <Ionicons name="construct-outline" size={22} color="#D97706" />
+          </View>
+          <Text style={styles.cardTitle}>Gramática</Text>
+          <Text style={styles.cardText}>Preguntas de opción múltiple calibradas a tu nivel.</Text>
+          <Button label="Practicar gramática" onPress={() => navigation.navigate('GrammarPractice')} />
+        </View>
+
+        <View style={[styles.card, styles.secondCard]}>
+          <View style={[styles.iconWrap, { backgroundColor: '#DBEAFE' }]}>
+            <Ionicons name="headset-outline" size={22} color="#2563EB" />
+          </View>
+          <Text style={styles.cardTitle}>Listening</Text>
+          <Text style={styles.cardText}>Escucha y responde sin traducir, para entender de verdad.</Text>
+          <Button label="Practicar listening" onPress={() => navigation.navigate('ListeningPractice')} />
+        </View>
       </ScrollView>
     </SafeAreaView>
   );
@@ -48,7 +83,7 @@ const styles = StyleSheet.create({
   },
   content: {
     padding: spacing.lg,
-    paddingBottom: spacing.xl,
+    paddingBottom: 120,
   },
   title: {
     fontSize: 24,
