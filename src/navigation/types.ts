@@ -64,6 +64,7 @@ export type PracticeStackParamList = {
 export type AppStackParamList = {
   MainTabs: undefined;
   Assessment: undefined;
+  BookClass: undefined;
 };
 
 export type AssessmentStackParamList = {

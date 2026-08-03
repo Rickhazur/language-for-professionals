@@ -26,6 +26,7 @@ const QUICK_ACTIONS: QuickAction[] = [
   { icon: 'chatbubble-ellipses-outline', labelKey: 'home.quick.roleplay', route: 'Practice' },
   { icon: 'stats-chart-outline', labelKey: 'home.quick.progress', route: 'Progress' },
   { icon: 'locate-outline', labelKey: 'home.quick.assessment', route: 'Assessment' },
+  { icon: 'calendar-outline', labelKey: 'home.quick.bookClass', route: 'BookClass' },
 ];
 
 interface FeatureCard {

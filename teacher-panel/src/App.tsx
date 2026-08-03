@@ -5,6 +5,7 @@ import { LoginPage } from './pages/LoginPage';
 import { StudentsListPage } from './pages/StudentsListPage';
 import { StudentDetailPage } from './pages/StudentDetailPage';
 import { PendingApprovalsPage } from './pages/PendingApprovalsPage';
+import { AgendaPage } from './pages/AgendaPage';
 
 export default function App() {
   return (
@@ -33,6 +34,14 @@ export default function App() {
             element={
               <ProtectedRoute>
                 <PendingApprovalsPage />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/agenda"
+            element={
+              <ProtectedRoute>
+                <AgendaPage />
               </ProtectedRoute>
             }
           />
