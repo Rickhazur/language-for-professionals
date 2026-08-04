@@ -195,7 +195,8 @@ export function LessonVocabularyScreen({ route, navigation }: Props) {
                   </View>
                   {language === 'en' && (
                     <Text style={styles.linkingHint}>
-                      💡 ‿ conecta sonidos al hablar · negrita = palabras clave · gris = palabras rápidas y suaves
+                      💡 ‿ azul conecta con vocal · ‿ ámbar + letra tachada = consonante final casi muda ·
+                      negrita = palabras clave · gris = rápidas y suaves
                     </Text>
                   )}
                 </View>

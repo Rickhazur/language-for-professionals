@@ -14,6 +14,8 @@ import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { PracticeStackParamList } from '../../navigation/types';
 import { Button } from '../../components/common/Button';
 import { Input } from '../../components/common/Input';
+import { LinkedSentence } from '../../components/common/LinkedSentence';
+import { useAuth } from '../../hooks/useAuth';
 import { supabase } from '../../config/supabase';
 import { RoleplayMessage } from '../../types/database';
 import { colors, spacing, gradients } from '../../constants/theme';
@@ -36,6 +38,8 @@ function extractErrorMessage(error: unknown, fallback: string): Promise<string> 
 
 export function RoleplayConversationScreen({ route, navigation }: Props) {
   const { roleplayId, title, relatedObjective } = route.params;
+  const { studentProfile } = useAuth();
+  const language = studentProfile?.target_language ?? 'en';
   const [conversationId, setConversationId] = useState<string | null>(null);
   const [messages, setMessages] = useState<RoleplayMessage[]>([]);
   const [loading, setLoading] = useState(true);
@@ -142,7 +146,7 @@ export function RoleplayConversationScreen({ route, navigation }: Props) {
           {messages.map((m) =>
             m.role === 'assistant' ? (
               <View key={m.id} style={[styles.bubble, styles.bubbleAssistant]}>
-                <Text style={styles.bubbleText}>{m.content}</Text>
+                <LinkedSentence text={m.content} language={language} style={styles.bubbleText} />
               </View>
             ) : (
               <LinearGradient

@@ -231,8 +231,8 @@ export function LessonSpeakingScreen({ route, navigation }: Props) {
           <LinkedSentence text={currentSentence.sentence} language={language} style={styles.sentence} />
           {language === 'en' && (
             <Text style={styles.linkingHint}>
-              💡 ‿ conecta sonidos al hablar · negrita = palabras clave (más fuertes) · gris = palabras
-              rápidas y suaves
+              💡 ‿ azul conecta con vocal · ‿ ámbar + letra tachada = consonante final casi muda ·
+              negrita = palabras clave · gris = rápidas y suaves
             </Text>
           )}
         </View>

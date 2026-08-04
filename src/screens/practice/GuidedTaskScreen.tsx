@@ -7,6 +7,8 @@ import { PracticeStackParamList } from '../../navigation/types';
 import { Button } from '../../components/common/Button';
 import { Input } from '../../components/common/Input';
 import { ProgressBar } from '../../components/common/ProgressBar';
+import { LinkedSentence } from '../../components/common/LinkedSentence';
+import { useAuth } from '../../hooks/useAuth';
 import { supabase } from '../../config/supabase';
 import { GuidedTaskStepResult } from '../../types/database';
 import { colors, spacing, cardShadow } from '../../constants/theme';
@@ -28,6 +30,8 @@ function extractErrorMessage(error: unknown, fallback: string): Promise<string> 
 
 export function GuidedTaskScreen({ route, navigation }: Props) {
   const { roleplayId, title } = route.params;
+  const { studentProfile } = useAuth();
+  const language = studentProfile?.target_language ?? 'en';
 
   const [loading, setLoading] = useState(true);
   const [attemptId, setAttemptId] = useState<string | null>(null);
@@ -128,7 +132,12 @@ export function GuidedTaskScreen({ route, navigation }: Props) {
 
           <View style={styles.instructionCard}>
             <Text style={styles.instructionLabel}>Instrucción</Text>
-            <Text style={styles.instructionText}>{instruction}</Text>
+            <LinkedSentence text={instruction} language={language} style={styles.instructionText} />
+            {language === 'en' && (
+              <Text style={styles.linkingHint}>
+                💡 ‿ azul conecta con vocal · ‿ ámbar + letra tachada = consonante final casi muda
+              </Text>
+            )}
           </View>
 
           {!lastResult ? (
@@ -225,6 +234,11 @@ const styles = StyleSheet.create({
     fontSize: 19,
     fontWeight: '700',
     color: colors.text,
+  },
+  linkingHint: {
+    fontSize: 11,
+    color: colors.textMuted,
+    marginTop: spacing.sm,
   },
   input: {
     minHeight: 80,
