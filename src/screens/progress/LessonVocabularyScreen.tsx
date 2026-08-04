@@ -1,14 +1,18 @@
 import React, { useEffect, useState } from 'react';
-import { View, Text, StyleSheet, ActivityIndicator, Alert } from 'react-native';
+import { View, Text, StyleSheet, ActivityIndicator, Alert, Pressable } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { Ionicons } from '@expo/vector-icons';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { ProgressStackParamList } from '../../navigation/types';
 import { Button } from '../../components/common/Button';
 import { PillButton } from '../../components/common/PillButton';
+import { LinkedSentence } from '../../components/common/LinkedSentence';
+import { useAuth } from '../../hooks/useAuth';
 import { supabase } from '../../config/supabase';
+import { playAudioUri } from '../../lib/audio';
 import { buildGamificationMessage } from '../../lib/gamificationAlert';
 import { CoursePlanVocabularyTerm } from '../../types/database';
-import { colors, spacing, cardShadow } from '../../constants/theme';
+import { colors, spacing, vibrant, cardShadow } from '../../constants/theme';
 
 type Props = NativeStackScreenProps<ProgressStackParamList, 'LessonVocabulary'>;
 
@@ -16,14 +20,22 @@ function extractErrorMessage(error: unknown, fallback: string): string {
   return error instanceof Error ? error.message : fallback;
 }
 
+function extractAudioErrorMessage(error: unknown): string {
+  return error instanceof Error ? error.message : 'No se pudo generar el audio.';
+}
+
 export function LessonVocabularyScreen({ route, navigation }: Props) {
   const { item } = route.params;
+  const { studentProfile } = useAuth();
+  const language = studentProfile?.target_language ?? 'en';
   const [loading, setLoading] = useState(true);
   const [terms, setTerms] = useState<CoursePlanVocabularyTerm[]>([]);
   const [currentIndex, setCurrentIndex] = useState(0);
   const [revealed, setRevealed] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [finished, setFinished] = useState(false);
+  const [loadingWordAudio, setLoadingWordAudio] = useState(false);
+  const [loadingSentenceAudio, setLoadingSentenceAudio] = useState(false);
 
   useEffect(() => {
     (async () => {
@@ -43,6 +55,34 @@ export function LessonVocabularyScreen({ route, navigation }: Props) {
   }, [item.id]);
 
   const currentTerm = terms[currentIndex];
+
+  const playWordAudio = async () => {
+    if (!currentTerm) return;
+    setLoadingWordAudio(true);
+    const { data, error } = await supabase.functions.invoke('text-to-speech', {
+      body: { text: currentTerm.term, language },
+    });
+    setLoadingWordAudio(false);
+    if (error || !data?.audioUrl) {
+      Alert.alert('No se pudo generar el audio', extractAudioErrorMessage(error));
+      return;
+    }
+    playAudioUri(data.audioUrl).catch(() => Alert.alert('Error', 'No se pudo reproducir el audio.'));
+  };
+
+  const playSentenceAudio = async () => {
+    if (!currentTerm?.example_sentence) return;
+    setLoadingSentenceAudio(true);
+    const { data, error } = await supabase.functions.invoke('text-to-speech', {
+      body: { text: currentTerm.example_sentence, language },
+    });
+    setLoadingSentenceAudio(false);
+    if (error || !data?.audioUrl) {
+      Alert.alert('No se pudo generar el audio', extractAudioErrorMessage(error));
+      return;
+    }
+    playAudioUri(data.audioUrl).catch(() => Alert.alert('Error', 'No se pudo reproducir el audio.'));
+  };
 
   const handleAnswer = async (correct: boolean) => {
     if (!currentTerm || submitting) return;
@@ -117,11 +157,49 @@ export function LessonVocabularyScreen({ route, navigation }: Props) {
 
       <View style={styles.content}>
         <View style={styles.card}>
-          <Text style={styles.term}>{currentTerm.term}</Text>
+          <View style={styles.termRow}>
+            <Text style={styles.term}>{currentTerm.term}</Text>
+            <Pressable
+              onPress={playWordAudio}
+              disabled={loadingWordAudio}
+              style={styles.audioButton}
+              hitSlop={8}
+            >
+              {loadingWordAudio ? (
+                <ActivityIndicator size="small" color={vibrant.purple} />
+              ) : (
+                <Ionicons name="volume-high-outline" size={22} color={vibrant.purple} />
+              )}
+            </Pressable>
+          </View>
+
           {revealed && (
             <>
               <Text style={styles.translation}>{currentTerm.translation}</Text>
-              {currentTerm.example_sentence && <Text style={styles.example}>{currentTerm.example_sentence}</Text>}
+              {currentTerm.example_sentence && (
+                <View style={styles.sentenceBlock}>
+                  <View style={styles.termRow}>
+                    <LinkedSentence text={currentTerm.example_sentence} language={language} style={styles.example} />
+                    <Pressable
+                      onPress={playSentenceAudio}
+                      disabled={loadingSentenceAudio}
+                      style={styles.audioButton}
+                      hitSlop={8}
+                    >
+                      {loadingSentenceAudio ? (
+                        <ActivityIndicator size="small" color={vibrant.purple} />
+                      ) : (
+                        <Ionicons name="volume-medium-outline" size={20} color={vibrant.purple} />
+                      )}
+                    </Pressable>
+                  </View>
+                  {language === 'en' && (
+                    <Text style={styles.linkingHint}>
+                      💡 ‿ conecta sonidos al hablar · negrita = palabras clave · gris = palabras rápidas y suaves
+                    </Text>
+                  )}
+                </View>
+              )}
             </>
           )}
         </View>
@@ -218,7 +296,30 @@ const styles = StyleSheet.create({
     fontSize: 14,
     fontStyle: 'italic',
     color: colors.textMuted,
+    textAlign: 'center',
+  },
+  termRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: spacing.sm,
+  },
+  audioButton: {
+    width: 32,
+    height: 32,
+    borderRadius: 16,
+    backgroundColor: '#F5F3FF',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  sentenceBlock: {
     marginTop: spacing.sm,
+    alignItems: 'center',
+  },
+  linkingHint: {
+    fontSize: 11,
+    color: colors.textMuted,
+    marginTop: spacing.xs,
     textAlign: 'center',
   },
   revealButton: {
