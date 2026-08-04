@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, Text, StyleSheet, Linking, Alert } from 'react-native';
+import { View, Text, StyleSheet, Linking, Alert, ScrollView } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { AssessmentStackParamList } from '../../navigation/types';
@@ -63,7 +63,7 @@ export function AssessmentResultScreen({ route, navigation }: Props) {
 
   return (
     <SafeAreaView style={styles.container}>
-      <View style={styles.content}>
+      <ScrollView style={styles.scroll} contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
         <Text style={styles.label}>Tu nivel estimado es</Text>
         <LinearGradient colors={gradients.hero} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }} style={styles.levelCircle}>
           <Text style={styles.level}>{assessment.overall_level}</Text>
@@ -97,7 +97,7 @@ export function AssessmentResultScreen({ route, navigation }: Props) {
 
           <Button label={t('assessmentOffer.ctaButton')} onPress={handleClaimOffer} style={styles.offerButton} />
         </View>
-      </View>
+      </ScrollView>
 
       <Button label="Continuar" variant="secondary" onPress={handleContinue} loading={continuing} style={styles.button} />
     </SafeAreaView>
@@ -108,10 +108,13 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: colors.background,
-    justifyContent: 'space-between',
+  },
+  scroll: {
+    flex: 1,
   },
   content: {
     padding: spacing.lg,
+    paddingBottom: spacing.xl,
     alignItems: 'center',
     marginTop: spacing.xl,
   },

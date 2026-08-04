@@ -105,6 +105,20 @@ Deno.serve(async (req: Request) => {
       return jsonResponse({ error: updateError?.message ?? 'No se pudo aprobar la cuenta.' }, 500);
     }
 
+    // Aprobar la cuenta (profiles.is_approved) y quedar "asignado" a este
+    // profesor son cosas distintas — sin este insert, el estudiante nunca
+    // aparece en "Mis estudiantes" ni el profesor puede ver su progreso,
+    // aunque la aprobación en sí haya funcionado.
+    if (target.role === 'student') {
+      const { error: assignmentError } = await admin
+        .from('student_teacher_assignments')
+        .upsert({ student_id: profileId, teacher_id: user.id }, { onConflict: 'student_id,teacher_id' });
+
+      if (assignmentError) {
+        console.error('assignment insert failed:', assignmentError);
+      }
+    }
+
     let emailWarning: string | null = null;
 
     if (gmailUser && gmailAppPassword) {

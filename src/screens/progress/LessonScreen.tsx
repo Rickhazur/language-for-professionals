@@ -195,6 +195,7 @@ const styles = StyleSheet.create({
   },
   actions: {
     padding: spacing.lg,
+    paddingBottom: 110,
     gap: spacing.sm,
   },
   resetButton: {
