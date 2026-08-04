@@ -90,6 +90,16 @@ este esquema:
       "related_objective": "meetings" | "emails" | "negotiation" | "presentations" | "customer_service" | "travel",
       "difficulty": "A1" | "A2" | "B1" | "B2" | "C1" | "C2"
     }
+  ],
+  "guided_tasks": [
+    {
+      "title": string,
+      "context": string,
+      "objective": string,
+      "related_objective": "meetings" | "emails" | "negotiation" | "presentations" | "customer_service" | "travel",
+      "difficulty": "A1" | "A2" | "B1" | "B2" | "C1" | "C2",
+      "steps": string[]
+    }
   ]
 }
 
@@ -118,7 +128,15 @@ Reglas de contenido:
    formato. Esta oración se usa tal cual para generar audio de voz; si mezclas idiomas
    ahí, el audio queda mal pronunciado.
 8. No agregues campos fuera del esquema. No dejes arrays vacíos.
-9. No repitas el mismo skill_focus en más de dos módulos consecutivos.`;
+9. No repitas el mismo skill_focus en más de dos módulos consecutivos.
+10. Genera exactamente 2 "guided_tasks": tareas profesionales realistas de la
+    ocupación del estudiante, divididas en 5 a 7 pasos cada una (campo "steps").
+    Cada paso es UNA instrucción corta y accionable en ${targetLanguageName}
+    (ej. "Book a meeting room for 3pm tomorrow"), en el orden en que se
+    ejecutarían de verdad. "title", "context" y "objective" van en
+    ${nativeLanguageName} igual que en roleplay_scenarios; el array "steps" va
+    ÚNICAMENTE en ${targetLanguageName}, porque el estudiante debe leerlos y
+    responder ahí mismo.`;
 }
 
 interface GeneratedPlan {
@@ -139,6 +157,14 @@ interface GeneratedPlan {
     objective: string;
     related_objective: string;
     difficulty: string;
+  }>;
+  guided_tasks: Array<{
+    title: string;
+    context: string;
+    objective: string;
+    related_objective: string;
+    difficulty: string;
+    steps: string[];
   }>;
 }
 
@@ -171,6 +197,22 @@ function validatePlan(plan: GeneratedPlan | null): string | null {
       !CEFR_LEVELS.includes(r.difficulty)
     ) {
       return 'un escenario de roleplay tiene formato inválido';
+    }
+  }
+
+  if (!Array.isArray(plan.guided_tasks) || plan.guided_tasks.length === 0) {
+    return 'falta guided_tasks';
+  }
+  for (const g of plan.guided_tasks) {
+    if (
+      typeof g.title !== 'string' ||
+      !OBJECTIVES.includes(g.related_objective) ||
+      !CEFR_LEVELS.includes(g.difficulty) ||
+      !Array.isArray(g.steps) ||
+      g.steps.length === 0 ||
+      g.steps.some((s) => typeof s !== 'string' || !s)
+    ) {
+      return 'una tarea guiada tiene formato inválido';
     }
   }
 
@@ -362,14 +404,27 @@ Deno.serve(async (req: Request) => {
       example_sentence: v.example_sentence,
     }));
 
-    const roleplays = plan.roleplay_scenarios.map((r) => ({
-      course_plan_id: coursePlan.id,
-      title: r.title,
-      context: r.context,
-      objective: r.objective,
-      related_objective: r.related_objective,
-      difficulty: r.difficulty,
-    }));
+    const roleplays = [
+      ...plan.roleplay_scenarios.map((r) => ({
+        course_plan_id: coursePlan.id,
+        title: r.title,
+        context: r.context,
+        objective: r.objective,
+        related_objective: r.related_objective,
+        difficulty: r.difficulty,
+        activity_type: 'conversation',
+      })),
+      ...plan.guided_tasks.map((g) => ({
+        course_plan_id: coursePlan.id,
+        title: g.title,
+        context: g.context,
+        objective: g.objective,
+        related_objective: g.related_objective,
+        difficulty: g.difficulty,
+        activity_type: 'guided_task',
+        steps: g.steps,
+      })),
+    ];
 
     const [itemsResult, vocabResult, roleplaysResult] = await Promise.all([
       admin.from('course_plan_items').insert(items).select(),

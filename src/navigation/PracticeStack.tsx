@@ -11,6 +11,8 @@ import { RoleplayConversationScreen } from '../screens/practice/RoleplayConversa
 import { RoleplayFeedbackScreen } from '../screens/practice/RoleplayFeedbackScreen';
 import { RoleplayPhraseBankScreen } from '../screens/practice/RoleplayPhraseBankScreen';
 import { RoleplayPhrasePracticeScreen } from '../screens/practice/RoleplayPhrasePracticeScreen';
+import { GuidedTaskScreen } from '../screens/practice/GuidedTaskScreen';
+import { GuidedTaskFeedbackScreen } from '../screens/practice/GuidedTaskFeedbackScreen';
 
 const Stack = createNativeStackNavigator<PracticeStackParamList>();
 
@@ -31,6 +33,8 @@ export function PracticeStack() {
       <Stack.Screen name="RoleplayFeedback" component={RoleplayFeedbackScreen} />
       <Stack.Screen name="RoleplayPhraseBank" component={RoleplayPhraseBankScreen} />
       <Stack.Screen name="RoleplayPhrasePractice" component={RoleplayPhrasePracticeScreen} />
+      <Stack.Screen name="GuidedTask" component={GuidedTaskScreen} />
+      <Stack.Screen name="GuidedTaskFeedback" component={GuidedTaskFeedbackScreen} />
     </Stack.Navigator>
   );
 }

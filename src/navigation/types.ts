@@ -1,5 +1,6 @@
 import {
   CoursePlanItem,
+  GuidedTaskStepResult,
   LanguageCode,
   LearningObjective,
   LevelAssessment,
@@ -70,6 +71,15 @@ export type PracticeStackParamList = {
   };
   RoleplayPhraseBank: { relatedObjective: LearningObjective };
   RoleplayPhrasePractice: { phrase: RoleplayPhrase };
+  GuidedTask: { roleplayId: string; title: string };
+  GuidedTaskFeedback: {
+    title: string;
+    score: number;
+    totalSteps: number;
+    stepResults: GuidedTaskStepResult[];
+    gamification?: { totalPoints: number; currentStreak: number; longestStreak: number } | null;
+    newBadges?: StudentBadge[];
+  };
 };
 
 export type AppStackParamList = {

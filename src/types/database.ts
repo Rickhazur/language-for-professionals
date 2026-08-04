@@ -313,6 +313,8 @@ export interface StudentVocabularyProgress {
   created_at: string;
 }
 
+export type RoleplayActivityType = 'conversation' | 'guided_task';
+
 export interface CoursePlanRoleplay {
   id: string;
   course_plan_id: string;
@@ -321,7 +323,31 @@ export interface CoursePlanRoleplay {
   objective: string;
   related_objective: LearningObjective;
   difficulty: CefrLevel;
+  activity_type: RoleplayActivityType;
+  steps: string[] | null;
   created_at: string;
+}
+
+export interface GuidedTaskStepResult {
+  step_index: number;
+  instruction: string;
+  response: string;
+  correct: boolean;
+  feedback: string;
+}
+
+export interface GuidedTaskAttempt {
+  id: string;
+  student_id: string;
+  roleplay_id: string;
+  language: LanguageCode;
+  status: 'active' | 'completed';
+  current_step: number;
+  step_results: GuidedTaskStepResult[];
+  total_steps: number;
+  score: number | null;
+  started_at: string;
+  completed_at: string | null;
 }
 
 export interface TeacherNote {

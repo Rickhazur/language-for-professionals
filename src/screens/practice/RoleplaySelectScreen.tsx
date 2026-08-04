@@ -78,21 +78,28 @@ export function RoleplaySelectScreen({ navigation }: Props) {
     <SafeAreaView style={styles.container}>
       <ScrollView contentContainerStyle={styles.content}>
         <Text style={styles.title}>Elige un escenario</Text>
-        <Text style={styles.subtitle}>Vas a conversar con la IA en este personaje, en tu idioma de práctica.</Text>
+        <Text style={styles.subtitle}>
+          Conversa libremente con la IA, o sigue instrucciones paso a paso para completar una tarea.
+        </Text>
 
         {scenarios.map((s) => (
           <Pressable
             key={s.id}
             style={styles.card}
             onPress={() =>
-              navigation.navigate('RoleplayConversation', {
-                roleplayId: s.id,
-                title: s.title,
-                relatedObjective: s.related_objective,
-              })
+              s.activity_type === 'guided_task'
+                ? navigation.navigate('GuidedTask', { roleplayId: s.id, title: s.title })
+                : navigation.navigate('RoleplayConversation', {
+                    roleplayId: s.id,
+                    title: s.title,
+                    relatedObjective: s.related_objective,
+                  })
             }
           >
             <View style={styles.cardBadges}>
+              {s.activity_type === 'guided_task' && (
+                <Text style={[styles.badge, styles.taskBadge]}>Sigue instrucciones</Text>
+              )}
               <Text style={styles.badge}>{OBJECTIVE_LABELS[s.related_objective] ?? s.related_objective}</Text>
               <Text style={styles.badge}>{s.difficulty}</Text>
             </View>
@@ -169,6 +176,10 @@ const styles = StyleSheet.create({
     paddingVertical: 2,
     borderRadius: 10,
     overflow: 'hidden',
+  },
+  taskBadge: {
+    color: '#D97706',
+    backgroundColor: '#FEF3C7',
   },
   cardTitle: {
     fontSize: 16,
